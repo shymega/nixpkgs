@@ -10,11 +10,13 @@
 , libdrm
 , enableX11 ? stdenv.isLinux
 , libX11
+  # for passhtru.tests
+, pkgsi686Linux
 }:
 
 stdenv.mkDerivation rec {
   pname = "intel-media-driver";
-  version = "22.3.0";
+  version = "22.6.3";
 
   outputs = [ "out" "dev" ];
 
@@ -22,7 +24,7 @@ stdenv.mkDerivation rec {
     owner = "intel";
     repo = "media-driver";
     rev = "intel-media-${version}";
-    sha256 = "sha256-TQmXU/Roij6U6NTt3oywhjpPJzaFeR4hhVor11mgaRE=";
+    sha256 = "sha256-lQg+L64DW2ZIBeJRimNkba7EL+SM4jSnX9PWIx4j2AY=";
   };
 
   patches = [
@@ -31,6 +33,10 @@ stdenv.mkDerivation rec {
       url = "https://salsa.debian.org/multimedia-team/intel-media-driver-non-free/-/raw/master/debian/patches/0002-Remove-settings-based-on-ARCH.patch";
       sha256 = "sha256-f4M0CPtAVf5l2ZwfgTaoPw7sPuAP/Uxhm5JSHEGhKT0=";
     })
+  ] ++ lib.optional stdenv.is32bit [
+    # fix compilation on i686-linux but also breaks x86_64
+    # a similar issue got fixed in https://github.com/intel/media-driver/pull/1493 but thats to much C magic for me
+    ./32bit.patch
   ];
 
   cmakeFlags = [
@@ -51,6 +57,10 @@ stdenv.mkDerivation rec {
     patchelf --set-rpath "$(patchelf --print-rpath $out/lib/dri/iHD_drv_video.so):${lib.makeLibraryPath [ libX11 ]}" \
       $out/lib/dri/iHD_drv_video.so
   '';
+
+  passthru.tests = {
+    inherit (pkgsi686Linux) intel-media-driver;
+  };
 
   meta = with lib; {
     description = "Intel Media Driver for VAAPI — Broadwell+ iGPUs";

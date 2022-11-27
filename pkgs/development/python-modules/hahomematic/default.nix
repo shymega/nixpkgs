@@ -7,6 +7,7 @@
 , pytestCheckHook
 , python-slugify
 , pythonOlder
+, setuptools
 , voluptuous
 , websocket-client
 , xmltodict
@@ -14,8 +15,8 @@
 
 buildPythonPackage rec {
   pname = "hahomematic";
-  version = "1.1.4";
-  format = "setuptools";
+  version = "2022.11.2";
+  format = "pyproject";
 
   disabled = pythonOlder "3.9";
 
@@ -23,8 +24,12 @@ buildPythonPackage rec {
     owner = "danielperna84";
     repo = pname;
     rev = "refs/tags/${version}";
-    sha256 = "sha256-it3Hku0k+o2v+KeykCO3W5CxOpkWbGXT055Kq6cSDzo=";
+    sha256 = "sha256-m28UDaBk2EFwulkjvuT6zpLEeVL/oofHUVSop+AKYvc=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     aiohttp

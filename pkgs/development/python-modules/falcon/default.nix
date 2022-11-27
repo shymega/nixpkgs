@@ -6,6 +6,7 @@
 
 # build
 , cython
+, setuptools
 
 # tests
 , aiofiles
@@ -38,7 +39,9 @@ buildPythonPackage rec {
     hash = "sha256-Y6bD0GCXhqpvMV+/i1v59p2qWZ91f2ey7sPQrVALY54=";
   };
 
-  nativeBuildInputs = lib.optionals (!isPyPy) [
+  nativeBuildInputs = [
+    setuptools
+  ] ++ lib.optionals (!isPyPy) [
     cython
   ];
 
@@ -78,6 +81,11 @@ buildPythonPackage rec {
 
   pytestFlagsArray = [
     "tests"
+  ];
+
+  disabledTestPaths = [
+    # needs a running server
+    "tests/asgi/test_asgi_servers.py"
   ];
 
   meta = with lib; {

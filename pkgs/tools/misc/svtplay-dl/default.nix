@@ -1,5 +1,13 @@
-{ lib, stdenv, fetchFromGitHub, makeWrapper, python3Packages, perl, zip
-, gitMinimal, ffmpeg }:
+{ lib
+, stdenv
+, fetchFromGitHub
+, makeWrapper
+, python3Packages
+, perl
+, zip
+, gitMinimal
+, ffmpeg
+}:
 
 let
 
@@ -7,15 +15,19 @@ let
     python pytest nose cryptography pyyaml requests mock requests-mock
     python-dateutil setuptools;
 
-in stdenv.mkDerivation rec {
+  version = "4.15";
+
+in
+
+stdenv.mkDerivation rec {
   pname = "svtplay-dl";
-  version = "4.11";
+  inherit version;
 
   src = fetchFromGitHub {
     owner = "spaam";
     repo = "svtplay-dl";
     rev = version;
-    sha256 = "1ybip45bfmvajw046v6mxjbf3vv0y7zgfb454rjy56zhx40l232v";
+    hash = "sha256-l8cdJWJbIAkp1RRfq1Q5ugJKinIwudd2Ke6esK/hNjc=";
   };
 
   pythonPaths = [ cryptography pyyaml requests ];

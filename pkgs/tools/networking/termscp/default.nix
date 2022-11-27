@@ -1,10 +1,11 @@
 { lib
 , dbus
 , fetchFromGitHub
-, libssh
 , openssl
 , pkg-config
 , rustPlatform
+, AppKit
+, Cocoa
 , Foundation
 , Security
 , stdenv
@@ -12,16 +13,16 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "termscp";
-  version = "0.8.1";
+  version = "0.10.0";
 
   src = fetchFromGitHub {
     owner = "veeso";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-WqOkud8gOa81P6FT44y5RZX4CWjmou9HufZ3QPoYuAk=";
+    hash = "sha256-AyDENQj73HzNh1moO/KJl7OG80w65XiYmIl8d9/iAtE=";
   };
 
-  cargoSha256 = "sha256-jckJiFhiUvbn0fkgKzqDorWQvuLenx/S8+RyPoqaWUg=";
+  cargoHash = "sha256-NgBQvWtwkAvp0V7zWGw+lNAcVqqDMAeNC0KNIBrwjEE=";
 
   nativeBuildInputs = [
     pkg-config
@@ -29,11 +30,19 @@ rustPlatform.buildRustPackage rec {
 
   buildInputs = [
     dbus
-    libssh
     openssl
-  ] ++ lib.optional stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.isDarwin [
+    AppKit
+    Cocoa
     Foundation
     Security
+  ];
+
+  # Needed to get openssl-sys to use pkg-config.
+  OPENSSL_NO_VENDOR = 1;
+
+  NIX_CFLAGS_COMPILE = lib.optionals stdenv.isDarwin [
+    "-framework" "AppKit"
   ];
 
   # Requires network access

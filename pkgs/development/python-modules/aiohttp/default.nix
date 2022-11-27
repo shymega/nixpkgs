@@ -29,12 +29,12 @@
 
 buildPythonPackage rec {
   pname = "aiohttp";
-  version = "3.8.1";
+  version = "3.8.3";
   disabled = pythonOlder "3.6";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "fc5471e1a54de15ef71c1bc6ebe80d4dc681ea600e68bfd1cbce40427f0b7578";
+    sha256 = "3828fb41b7203176b82fe5d699e0d845435f2374750a44b480ea6b930f6be269";
   };
 
   postPatch = ''
@@ -67,6 +67,9 @@ buildPythonPackage rec {
     pytest-mock
     pytestCheckHook
     re-assert
+  ] ++ lib.optionals (!(stdenv.isDarwin && stdenv.isAarch64)) [
+    # Optional test dependency. Depends indirectly on pyopenssl, which is
+    # broken on aarch64-darwin.
     trustme
   ];
 

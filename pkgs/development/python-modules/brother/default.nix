@@ -1,6 +1,7 @@
 { lib
 , buildPythonPackage
 , fetchFromGitHub
+, dacite
 , pysnmplib
 , pytest-asyncio
 , pytest-error-for-skips
@@ -10,7 +11,7 @@
 
 buildPythonPackage rec {
   pname = "brother";
-  version = "1.2.0";
+  version = "2.0.0";
   format = "setuptools";
 
   disabled = pythonOlder "3.8";
@@ -18,11 +19,12 @@ buildPythonPackage rec {
   src = fetchFromGitHub {
     owner = "bieniu";
     repo = pname;
-    rev = version;
-    hash = "sha256-hKOZ5pTDwhM0lOXoatXXVvEVxiTfxIpBRe3fFcUfzwE=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-pk9VBFha2NfQWI+fbWwGKcGFa93eKr5Cqh85r1CAXpI=";
   };
 
   propagatedBuildInputs = [
+    dacite
     pysnmplib
   ];
 
@@ -31,13 +33,6 @@ buildPythonPackage rec {
     pytest-error-for-skips
     pytestCheckHook
   ];
-
-  postPatch = ''
-    substituteInPlace setup.cfg \
-      --replace "--cov --cov-report term-missing " ""
-    substituteInPlace setup.py \
-      --replace '"pytest-runner"' ""
-  '';
 
   pythonImportsCheck = [
     "brother"

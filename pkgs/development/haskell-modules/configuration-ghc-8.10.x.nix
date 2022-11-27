@@ -38,16 +38,26 @@ self: super: {
   rts = null;
   stm = null;
   template-haskell = null;
-  terminfo = null;
+  # GHC only builds terminfo if it is a native compiler
+  terminfo = if pkgs.stdenv.hostPlatform == pkgs.stdenv.buildPlatform then null else self.terminfo_0_4_1_5;
   text = null;
   time = null;
   transformers = null;
   unix = null;
-  xhtml = null;
+  # GHC only bundles the xhtml library if haddock is enabled, check if this is
+  # still the case when updating: https://gitlab.haskell.org/ghc/ghc/-/blob/0198841877f6f04269d6050892b98b5c3807ce4c/ghc.mk#L463
+  xhtml = if self.ghc.hasHaddock or true then null else self.xhtml_3000_2_2_1;
 
-  # cabal-install needs more recent versions of Cabal and base16-bytestring.
+  # cabal-install needs most recent versions of Cabal and Cabal-syntax
   cabal-install = super.cabal-install.overrideScope (self: super: {
-    Cabal = self.Cabal_3_6_3_0;
+    Cabal = self.Cabal_3_8_1_0;
+    Cabal-syntax = self.Cabal-syntax_3_8_1_0;
+    process = self.process_1_6_16_0;
+  });
+  cabal-install-solver = super.cabal-install-solver.overrideScope (self: super: {
+    Cabal = self.Cabal_3_8_1_0;
+    Cabal-syntax = self.Cabal-syntax_3_8_1_0;
+    process = self.process_1_6_16_0;
   });
 
   # Pick right versions for GHC-specific packages
@@ -80,34 +90,25 @@ self: super: {
   }) (doJailbreak super.language-haskell-extract);
 
   # hnix 0.9.0 does not provide an executable for ghc < 8.10, so define completions here for now.
-  hnix = generateOptparseApplicativeCompletion "hnix"
+  hnix = self.generateOptparseApplicativeCompletions [ "hnix" ]
     (overrideCabal (drv: {
       # executable is allowed for ghc >= 8.10 and needs repline
       executableHaskellDepends = drv.executableToolDepends or [] ++ [ self.repline ];
     }) super.hnix);
 
+  haskell-language-server = addBuildDepend self.hls-brittany-plugin (super.haskell-language-server.overrideScope (lself: lsuper: {
+    Cabal = lself.Cabal_3_6_3_0;
+    aeson = lself.aeson_1_5_6_0;
+    lsp-types = doJailbreak lsuper.lsp-types; # Checks require aeson >= 2.0
+  }));
+
+  hls-brittany-plugin = super.hls-brittany-plugin.overrideScope (lself: lsuper: {
+    brittany = doJailbreak lself.brittany_0_13_1_2;
+    aeson = lself.aeson_1_5_6_0;
+    lsp-types = doJailbreak lsuper.lsp-types; # Checks require aeson >= 2.0
+  });
+
   mime-string = disableOptimization super.mime-string;
-
-  # Older compilers need the latest ghc-lib to build this package.
-  hls-hlint-plugin = addBuildDepend self.ghc-lib (overrideCabal (drv: {
-      # Workaround for https://github.com/haskell/haskell-language-server/issues/2728
-      postPatch = ''
-        sed -i 's/(GHC.RealSrcSpan x,/(GHC.RealSrcSpan x Nothing,/' src/Ide/Plugin/Hlint.hs
-      '';
-    })
-     super.hls-hlint-plugin);
-
-  haskell-language-server = appendConfigureFlags [
-      "-f-stylishhaskell"
-      "-f-brittany"
-    ]
-  super.haskell-language-server;
-
-  # has a restrictive lower bound on Cabal
-  fourmolu = doJailbreak super.fourmolu;
-
-  # ormolu 0.3 requires Cabal == 3.4
-  ormolu = super.ormolu_0_2_0_0;
 
   # weeder 2.3.0 no longer supports GHC 8.10
   weeder = doDistribute (doJailbreak self.weeder_2_2_0);
@@ -130,4 +131,18 @@ self: super: {
 
   # https://github.com/fpco/inline-c/issues/127 (recommend to upgrade to Nixpkgs GHC >=9.0)
   inline-c-cpp = (if isDarwin then dontCheck else x: x) super.inline-c-cpp;
+
+  # Depends on OneTuple for GHC < 9.0
+  universe-base = addBuildDepends [ self.OneTuple ] super.universe-base;
+
+  # Not possible to build in the main GHC 9.0 package set
+  # https://github.com/awakesecurity/spectacle/issues/49
+  spectacle = doDistribute (markUnbroken super.spectacle);
+
+  # doctest-parallel dependency requires newer Cabal
+  regex-tdfa = dontCheck super.regex-tdfa;
+
+  # Unnecessarily strict lower bound on base
+  # https://github.com/mrkkrp/megaparsec/pull/485#issuecomment-1250051823
+  megaparsec = doJailbreak super.megaparsec;
 }

@@ -10,59 +10,49 @@
 
 python3.pkgs.buildPythonApplication rec {
   pname = "dvc";
-  version = "2.9.5";
+  version = "2.17.0";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "iterative";
     repo = pname;
     rev = version;
-    hash = "sha256-MviiA0ja1IaxMPlqu2dhIGBcdEXiEvBYnK9731dihMg=";
+    hash = "sha256-2h+fy4KMxFrVtKJBtA1RmJDZv0OVm1BxO1akZzAw95Y=";
   };
-
-  # make the patch apply
-  prePatch = ''
-    substituteInPlace setup.cfg \
-      --replace "scmrepo==0.0.7" "scmrepo==0.0.10"
-  '';
-
-  patches = [
-    ./dvc-daemon.patch
-    (fetchpatch {
-      url = "https://github.com/iterative/dvc/commit/ab54b5bdfcef3576b455a17670b8df27beb504ce.patch";
-      sha256 = "sha256-wzMK6Br7/+d3EEGpfPuQ6Trj8IPfehdUvOvX3HZlS+o=";
-    })
-  ];
 
   postPatch = ''
     substituteInPlace setup.cfg \
-      --replace "grandalf==0.6" "grandalf>=0.6" \
-      --replace "scmrepo==0.0.13" "scmrepo"
+      --replace "grandalf==0.6" "grandalf" \
+      --replace "scmrepo==0.0.25" "scmrepo" \
+      --replace "pathspec>=0.9.0,<0.10.0" "pathspec"
     substituteInPlace dvc/daemon.py \
       --subst-var-by dvc "$out/bin/dcv"
   '';
 
   nativeBuildInputs = with python3.pkgs; [
     setuptools-scm
-    setuptools-scm-git-archive
   ];
 
   propagatedBuildInputs = with python3.pkgs; [
-    appdirs
     aiohttp-retry
+    appdirs
     colorama
-    configobj
     configobj
     dictdiffer
     diskcache
     distro
     dpath
+    dvclive
+    dvc-data
+    dvc-render
+    dvc-task
     flatten-dict
     flufl_lock
     funcy
     grandalf
     nanotime
     networkx
+    packaging
     pathspec
     ply
     psutil
@@ -77,19 +67,23 @@ python3.pkgs.buildPythonApplication rec {
     shortuuid
     shtab
     tabulate
-    toml
+    tomlkit
     tqdm
     typing-extensions
     voluptuous
     zc_lockfile
-  ] ++ lib.optional enableGoogle [
+  ] ++ lib.optionals enableGoogle [
+    gcsfs
     google-cloud-storage
-  ] ++ lib.optional enableAWS [
+  ] ++ lib.optionals enableAWS [
+    aiobotocore
     boto3
-  ] ++ lib.optional enableAzure [
-    azure-storage-blob
-  ] ++ lib.optional enableSSH [
-    paramiko
+    s3fs
+  ] ++ lib.optionals enableAzure [
+    azure-identity
+    knack
+  ] ++ lib.optionals enableSSH [
+    bcrypt
   ] ++ lib.optionals (pythonOlder "3.8") [
     importlib-metadata
   ] ++ lib.optionals (pythonOlder "3.9") [
@@ -103,6 +97,6 @@ python3.pkgs.buildPythonApplication rec {
     description = "Version Control System for Machine Learning Projects";
     homepage = "https://dvc.org";
     license = licenses.asl20;
-    maintainers = with maintainers; [ cmcdragonkai fab ];
+    maintainers = with maintainers; [ cmcdragonkai fab anthonyroussel ];
   };
 }

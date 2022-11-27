@@ -14,6 +14,8 @@ extraUtils="@extraUtils@"
 export LD_LIBRARY_PATH=@extraUtils@/lib
 export PATH=@extraUtils@/bin
 ln -s @extraUtils@/bin /bin
+# hardcoded in util-linux's mount helper search path `/run/wrappers/bin:/run/current-system/sw/bin:/sbin`
+ln -s @extraUtils@/bin /sbin
 
 # Copy the secrets to their needed location
 if [ -d "@extraUtils@/secrets" ]; then
@@ -318,11 +320,7 @@ checkFS() {
 
     echo "checking $device..."
 
-    fsckFlags=
-    if test "$fsType" != "btrfs"; then
-        fsckFlags="-V -a"
-    fi
-    fsck $fsckFlags "$device"
+    fsck -V -a "$device"
     fsckResult=$?
 
     if test $(($fsckResult | 2)) = $fsckResult; then
@@ -344,6 +342,14 @@ checkFS() {
     return 0
 }
 
+escapeFstab() {
+    local original="$1"
+
+    # Replace space
+    local escaped="${original// /\\040}"
+    # Replace tab
+    echo "${escaped//$'\t'/\\011}"
+}
 
 # Function for mounting a file system.
 mountFS() {
@@ -557,6 +563,9 @@ while read -u 3 mountPoint; do
 
       umount /tmp-iso
       rmdir /tmp-iso
+      if [ -n "$isoPath" ] && [ $fsType = "iso9660" ] && mountpoint -q /findiso; then
+       umount /findiso
+      fi
       continue
     fi
 
@@ -568,7 +577,7 @@ while read -u 3 mountPoint; do
         continue
     fi
 
-    mountFS "$device" "$mountPoint" "$options" "$fsType"
+    mountFS "$device" "$(escapeFstab "$mountPoint")" "$(escapeFstab "$options")" "$fsType"
 done
 
 exec 3>&-

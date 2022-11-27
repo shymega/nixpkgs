@@ -2,6 +2,7 @@
 , stdenv
 , buildPythonPackage
 , fetchPypi
+, eventlet
 , oslo-config
 , oslo-context
 , oslo-serialization
@@ -16,7 +17,7 @@
 
 buildPythonPackage rec {
   pname = "oslo-log";
-  version = "4.7.0";
+  version = "5.0.2";
   format = "setuptools";
 
   disabled = pythonOlder "3.6";
@@ -24,7 +25,7 @@ buildPythonPackage rec {
   src = fetchPypi {
     pname = "oslo.log";
     inherit version;
-    hash = "sha256-ycLEyW098LLuuTG0djvbCpBbqvKbiVgW2Vd41p+hJwc=";
+    hash = "sha256-5F5zEqpxUooWc2zkUVK+PxrxI/XvYqqB2gRoBVhPzKM=";
   };
 
   propagatedBuildInputs = [
@@ -39,6 +40,7 @@ buildPythonPackage rec {
   ];
 
   checkInputs = [
+    eventlet
     oslotest
     pytestCheckHook
   ];
@@ -53,6 +55,7 @@ buildPythonPackage rec {
   ];
 
   meta = with lib; {
+    broken = stdenv.isDarwin;
     description = "oslo.log library";
     homepage = "https://github.com/openstack/oslo.log";
     license = licenses.asl20;

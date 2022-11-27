@@ -7,7 +7,7 @@ let
 in
 
 { lib, stdenv, fetchurl, ncurses, buildEnv, libunwind, fetchpatch
-, libX11, xorgproto, useX11 ? safeX11 stdenv && !lib.versionAtLeast version "4.09"
+, libX11, xorgproto, useX11 ? safeX11 stdenv && lib.versionOlder version "4.09"
 , aflSupport ? false
 , flambdaSupport ? false
 , spaceTimeSupport ? false
@@ -73,6 +73,7 @@ stdenv.mkDerivation (args // {
   configurePlatforms = lib.optionals (lib.versionAtLeast version "4.08" && !(stdenv.isDarwin && stdenv.isAarch64)) [ "host" "target" ];
   # x86_64-unknown-linux-musl-ld: -r and -pie may not be used together
   hardeningDisable = lib.optional (lib.versionAtLeast version "4.09" && stdenv.hostPlatform.isMusl) "pie"
+    ++ lib.optional (lib.versionAtLeast version "5.0" && stdenv.cc.isClang) "strictoverflow"
     ++ lib.optionals (args ? hardeningDisable) args.hardeningDisable;
 
   # Older versions have some race:
@@ -87,14 +88,14 @@ stdenv.mkDerivation (args // {
   buildFlags = if useNativeCompilers
     then ["nixpkgs_world_bootstrap_world_opt"]
     else ["nixpkgs_world"];
-  buildInputs = optional (!lib.versionAtLeast version "4.07") ncurses
+  buildInputs = optional (lib.versionOlder version "4.07") ncurses
     ++ optionals useX11 [ libX11 xorgproto ];
   propagatedBuildInputs = optional spaceTimeSupport libunwind;
   installTargets = [ "install" ] ++ optional useNativeCompilers "installopt";
-  preConfigure = optionalString (!lib.versionAtLeast version "4.04") ''
+  preConfigure = optionalString (lib.versionOlder version "4.04") ''
     CAT=$(type -tp cat)
     sed -e "s@/bin/cat@$CAT@" -i config/auto-aux/sharpbang
-  '' + optionalString (stdenv.isDarwin && !lib.versionAtLeast version "4.13") ''
+  '' + optionalString (stdenv.isDarwin && lib.versionOlder version "4.13") ''
     # Do what upstream does by default now: https://github.com/ocaml/ocaml/pull/10176
     # This is required for aarch64-darwin, everything else works as is.
     AS="${stdenv.cc}/bin/cc -c" ASPP="${stdenv.cc}/bin/cc -c"
@@ -137,7 +138,7 @@ stdenv.mkDerivation (args // {
     '';
 
     platforms = with platforms; linux ++ darwin;
-    broken = stdenv.isAarch64 && !lib.versionAtLeast version "4.06";
+    broken = stdenv.isAarch64 && lib.versionOlder version (if stdenv.isDarwin then "4.10" else "4.06");
   };
 
 })

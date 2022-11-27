@@ -3,100 +3,104 @@
 , fetchPypi
 
 # extras: babel
-, Babel
+, babel
 , flask-babel
 
 # extras: common
 , bcrypt
 , bleach
-, flask_mail
+, flask-mailman
+, qrcode
 
 # extras: fsqla
-, flask_sqlalchemy
+, flask-sqlalchemy
 , sqlalchemy
 , sqlalchemy-utils
 
 # extras: mfa
 , cryptography
 , phonenumbers
-, pyqrcode
 
 # propagates
 , blinker
-, email_validator
+, email-validator
 , flask
-, flask_login
+, flask-login
 , flask_principal
-, flask_wtf
+, flask-wtf
 , itsdangerous
 , passlib
 
 # tests
+, argon2-cffi
 , flask-mongoengine
 , mongoengine
 , mongomock
 , peewee
 , pony
 , pytestCheckHook
+, python-dateutil
 , zxcvbn
 }:
 
 buildPythonPackage rec {
   pname = "flask-security-too";
-  version = "4.1.4";
+  version = "5.0.2";
 
   src = fetchPypi {
     pname = "Flask-Security-Too";
     inherit version;
-    sha256 = "sha256-j6My1CD+GY2InHlN0IXPcNqfq+ytdoDD3y+5s2o3WRI=";
+    sha256 = "sha256-Nv7g2l0bPSEcrydFU7d1NHjCCJl8Ykq7hOu6QmHeZcI=";
   };
 
   propagatedBuildInputs = [
     blinker
-    email_validator
+    email-validator
     flask
-    flask_login
+    flask-login
     flask_principal
-    flask_wtf
+    flask-wtf
     itsdangerous
     passlib
   ];
 
-  passthru.extras-require = {
+  passthru.optional-dependencies = {
     babel = [
-      Babel
+      babel
       flask-babel
     ];
     common = [
       bcrypt
       bleach
-      flask_mail
+      flask-mailman
+      qrcode
     ];
     fsqla = [
-      flask_sqlalchemy
+      flask-sqlalchemy
       sqlalchemy
       sqlalchemy-utils
     ];
     mfa = [
       cryptography
       phonenumbers
-      pyqrcode
     ];
   };
 
   checkInputs = [
+    argon2-cffi
     flask-mongoengine
     mongoengine
     mongomock
     peewee
     pony
     pytestCheckHook
+    python-dateutil
     zxcvbn
   ]
-  ++ passthru.extras-require.babel
-  ++ passthru.extras-require.common
-  ++ passthru.extras-require.fsqla
-  ++ passthru.extras-require.mfa;
+  ++ passthru.optional-dependencies.babel
+  ++ passthru.optional-dependencies.common
+  ++ passthru.optional-dependencies.fsqla
+  ++ passthru.optional-dependencies.mfa;
 
 
   pythonImportsCheck = [ "flask_security" ];

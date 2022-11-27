@@ -8,8 +8,16 @@ let
     genList (i: if i == idx then value else (builtins.elemAt list i)) (length list)
   );
 
-  # Do some canonicalisation of module names
-  moduleName = name: lib.toLower (lib.replaceStrings [ "_" "." ] [ "-" "-" ] name);
+  # Normalize package names as per PEP 503
+  normalizePackageName = name:
+    let
+      parts = builtins.split "[-_.]+" name;
+      partsWithoutSeparator = builtins.filter (x: builtins.typeOf x == "string") parts;
+    in
+    lib.strings.toLower (lib.strings.concatStringsSep "-" partsWithoutSeparator);
+
+  # Normalize an entire attrset of packages
+  normalizePackageSet = lib.attrsets.mapAttrs' (name: value: lib.attrsets.nameValuePair (normalizePackageName name) value);
 
   # Get a full semver pythonVersion from a python derivation
   getPythonVersion = python:
@@ -180,7 +188,7 @@ let
       hasGitIgnore = builtins.pathExists gitIgnore;
       gitIgnores = if hasGitIgnore then [ gitIgnore ] else [ ];
     in
-    lib.optionals (builtins.toString path != "/" && ! isGitRoot) (findGitIgnores parent) ++ gitIgnores;
+    lib.optionals (builtins.pathExists path && builtins.toString path != "/" && ! isGitRoot) (findGitIgnores parent) ++ gitIgnores;
 
   /*
     Provides a source filtering mechanism that:
@@ -233,7 +241,8 @@ in
     getBuildSystemPkgs
     satisfiesSemver
     cleanPythonSources
-    moduleName
+    normalizePackageName
+    normalizePackageSet
     getPythonVersion
     getTargetMachine
     ;

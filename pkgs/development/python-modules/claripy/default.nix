@@ -1,5 +1,6 @@
 { lib
 , buildPythonPackage
+, setuptools
 , cachetools
 , decorator
 , fetchFromGitHub
@@ -14,17 +15,21 @@
 
 buildPythonPackage rec {
   pname = "claripy";
-  version = "9.2.1";
+  version = "9.2.26";
   format = "pyproject";
 
-  disabled = pythonOlder "3.6";
+  disabled = pythonOlder "3.8";
 
   src = fetchFromGitHub {
     owner = "angr";
     repo = pname;
     rev = "v${version}";
-    hash = "sha256-pCqhSpZfX3u9vJ8Oy1yyicagBQYK5+jBVCEab0TnGA4=";
+    hash = "sha256-niJaHsvIX7NFA+pWufTA6j+Jvj6LcGlC+RaLNFn7yBo=";
   };
+
+  nativeBuildInputs = [
+    setuptools
+  ];
 
   propagatedBuildInputs = [
     cachetools
@@ -43,7 +48,7 @@ buildPythonPackage rec {
   postPatch = ''
     # Use upstream z3 implementation
     substituteInPlace setup.cfg \
-      --replace "z3-solver >= 4.8.5.0" ""
+      --replace "z3-solver == 4.10.2.0" ""
   '';
 
   pythonImportsCheck = [

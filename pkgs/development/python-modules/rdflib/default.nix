@@ -43,7 +43,7 @@ buildPythonPackage rec {
     importlib-metadata
   ];
 
-  passthru.extra-requires = {
+  passthru.optional-dependencies = {
     html = [
       html5lib
     ];
@@ -55,8 +55,8 @@ buildPythonPackage rec {
   checkInputs = [
     pytestCheckHook
   ]
-  ++ passthru.extra-requires.networkx
-  ++ passthru.extra-requires.html;
+  ++ passthru.optional-dependencies.networkx
+  ++ passthru.optional-dependencies.html;
 
   pytestFlagsArray = [
     # requires network access
@@ -68,7 +68,7 @@ buildPythonPackage rec {
     # Requires network access
     "test_service"
     "testGuessFormatForParse"
-  ] ++ lib.optional stdenv.isDarwin [
+  ] ++ lib.optionals stdenv.isDarwin [
     # Require loopback network access
     "TestGraphHTTP"
   ];

@@ -4,37 +4,53 @@
 , fetchFromGitHub
 , cmake
 , cython_3
-, rapidfuzz-capi
+, ninja
 , scikit-build
+, setuptools
 , jarowinkler
 , numpy
 , hypothesis
+, jarowinkler-cpp
 , pandas
 , pytestCheckHook
+, rapidfuzz-cpp
+, taskflow
 }:
 
 buildPythonPackage rec {
   pname = "rapidfuzz";
-  version = "2.0.8";
+  version = "2.13.2";
 
-  disabled = pythonOlder "3.6";
+  disabled = pythonOlder "3.7";
+
+  format = "pyproject";
 
   src = fetchFromGitHub {
     owner = "maxbachmann";
     repo = "RapidFuzz";
-    rev = "v${version}";
-    fetchSubmodules = true;
-    hash = "sha256-LA4UpP3jFcVZTYKuq8aBvfGgEhyOLeCUsUXEgSnwb94=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-a83Vww9dEh0nNylnZwCm6PJYmfKvw5RnMLerfKfN1dY=";
   };
 
   nativeBuildInputs = [
     cmake
     cython_3
-    rapidfuzz-capi
+    ninja
     scikit-build
+    setuptools
   ];
 
   dontUseCmakeConfigure = true;
+
+  buildInputs = [
+    jarowinkler-cpp
+    rapidfuzz-cpp
+    taskflow
+  ];
+
+  preBuild = ''
+    export RAPIDFUZZ_BUILD_EXTENSION=1
+  '';
 
   propagatedBuildInputs = [
     jarowinkler
@@ -47,11 +63,6 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  preCheck = ''
-    # import from $out
-    rm -r rapidfuzz
-  '';
-
   pythonImportsCheck = [
     "rapidfuzz.fuzz"
     "rapidfuzz.string_metric"
@@ -62,6 +73,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "Rapid fuzzy string matching";
     homepage = "https://github.com/maxbachmann/RapidFuzz";
+    changelog = "https://github.com/maxbachmann/RapidFuzz/blob/${src.rev}/CHANGELOG.md";
     license = licenses.mit;
     maintainers = with maintainers; [ dotlambda ];
   };

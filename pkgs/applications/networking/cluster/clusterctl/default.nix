@@ -2,16 +2,16 @@
 
 buildGoModule rec {
   pname = "clusterctl";
-  version = "1.1.3";
+  version = "1.2.6";
 
   src = fetchFromGitHub {
     owner = "kubernetes-sigs";
     repo = "cluster-api";
     rev = "v${version}";
-    sha256 = "sha256-0njXmYhZM4DXFeK9KboXnVw8uHdz4PFJ2aJxwhgyEc8=";
+    sha256 = "sha256-32Y4HQqODRlYLqDLUOqDwOf4Yp2xpAOPUgz8gU3TaEE=";
   };
 
-  vendorSha256 = "sha256-JVRLPsfI1ITilAOkVIAa2IjjuAlJ2PCpvYEkhnTzRDA=";
+  vendorSha256 = "sha256-jvadtm8NprVwNf4+GaaANK1u4Y4ccbsTCZxQk21GW7c=";
 
   subPackages = [ "cmd/clusterctl" ];
 
@@ -25,7 +25,7 @@ buildGoModule rec {
 
   postInstall = ''
     # errors attempting to write config to read-only $HOME
-    export HOME=$(mktemp -d)
+    export HOME=$TMPDIR
 
     installShellCompletion --cmd clusterctl \
       --bash <($out/bin/clusterctl completion bash) \

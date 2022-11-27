@@ -1,37 +1,35 @@
-{ lib, stdenv, callPackage, fetchurl, nixosTests }:
+{ lib, stdenv, callPackage, fetchurl, nixosTests, commandLineArgs ? "" }:
 
 let
   inherit (stdenv.hostPlatform) system;
+  throwSystem = throw "Unsupported system: ${system}";
 
   plat = {
     x86_64-linux = "linux-x64";
     x86_64-darwin = "darwin-x64";
     aarch64-linux = "linux-arm64";
+    aarch64-darwin = "darwin-arm64";
     armv7l-linux = "linux-armhf";
-  }.${system};
+  }.${system} or throwSystem;
 
-  archive_fmt = if system == "x86_64-darwin" then "zip" else "tar.gz";
+  archive_fmt = if stdenv.isDarwin then "zip" else "tar.gz";
 
   sha256 = {
-    x86_64-linux = "1i76ix318y6b2dcfnisg13bp5d7nzvcx7zcpl94mkrn974db30pn";
-    x86_64-darwin = "1qk1vykl838vwsffyjpazx7x9ajwxczpgz5vhch16iikfz2vh1vk";
-    aarch64-linux = "13jifiqn2v17d6vwacq6aib1lzyp2021kjdswkp7wpx6ck5lkm21";
-    armv7l-linux = "1zhriscsmfcsagsp2ds0fn316fybs5f2f2r3w5q29jwczgcnlam4";
-  }.${system};
+    x86_64-linux = "09ymqhg10flv3w38cb3fhrf5fvxz6aa12y75i009j01rjckvsymr";
+    x86_64-darwin = "0kd9a8vk4ddp78m0y1fbzbpgpr5rwhxnfbg52wvky0grl58dh6v6";
+    aarch64-linux = "17hwxwvvl3vy2s6wl1n2qkkdhlrf40z8wy0r5jhqrni79f6drkjz";
+    aarch64-darwin = "1skgnn6rq0rkhj98q8y19cyyllk8xa1752lwn4qcgi568anap1lw";
+    armv7l-linux = "0drz8kigjl82m3hfkpbqnmymy6fpgwmgbpkdwl2jkbl81iijvxvp";
+  }.${system} or throwSystem;
 
-  sourceRoot = {
-    x86_64-linux = ".";
-    x86_64-darwin = "";
-    aarch64-linux = ".";
-    armv7l-linux = ".";
-  }.${system};
+  sourceRoot = if stdenv.isDarwin then "" else ".";
 in
   callPackage ./generic.nix rec {
-    inherit sourceRoot;
+    inherit sourceRoot commandLineArgs;
 
     # Please backport all compatible updates to the stable release.
     # This is important for the extension ecosystem.
-    version = "1.66.2";
+    version = "1.73.1.22314";
     pname = "vscodium";
 
     executableName = "codium";
@@ -62,7 +60,9 @@ in
       homepage = "https://github.com/VSCodium/vscodium";
       downloadPage = "https://github.com/VSCodium/vscodium/releases";
       license = licenses.mit;
+      sourceProvenance = with sourceTypes; [ binaryNativeCode ];
       maintainers = with maintainers; [ synthetica turion bobby285271 ];
-      platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "armv7l-linux" ];
+      mainProgram = "codium";
+      platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" "armv7l-linux" ];
     };
   }

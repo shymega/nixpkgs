@@ -6,16 +6,16 @@
 
 buildGoModule rec {
   pname = "naabu";
-  version = "2.0.6";
+  version = "2.1.1";
 
   src = fetchFromGitHub {
     owner = "projectdiscovery";
     repo = "naabu";
     rev = "v${version}";
-    sha256 = "sha256-soYtm8vEkMJq9MeoUqOGJPWxZUrh3mGnApxG154W1wI=";
+    sha256 = "sha256-XX9c5Qix79eRZkmZxDjFiiTnh66bBLhSunUrIS2FdCA=";
   };
 
-  vendorSha256 = "sha256-MR1JUbeGC4N0jDuYdwVFMHBdZEy5BkID2BFdCwjtTAg=";
+  vendorSha256 = "sha256-w3prgkemFPLZ/OC0TPQL7kzKPcBLhYTw/IHP1vQlC2s=";
 
   buildInputs = [
     libpcap

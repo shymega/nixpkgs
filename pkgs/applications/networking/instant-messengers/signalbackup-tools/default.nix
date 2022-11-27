@@ -2,37 +2,32 @@
 
 stdenv.mkDerivation rec {
   pname = "signalbackup-tools";
-  version = "20220411";
+  version = "20221122";
 
   src = fetchFromGitHub {
     owner = "bepaald";
     repo = pname;
     rev = version;
-    sha256 = "sha256-ia+8RZ1wQTyUCs+6o9AMCH4Kh2neHjPWbXWjLkDb6/w=";
+    sha256 = "sha256-Bq1m/p1RFfyOmyEdIuHcYruwZ8ol2Bl0pmd/yft6iXA=";
   };
 
-  # Remove when Apple SDK is >= 10.13
-  patches = lib.optional (stdenv.system == "x86_64-darwin") ./apple-sdk-missing-utimensat.patch;
+  postPatch = ''
+    patchShebangs BUILDSCRIPT_MULTIPROC.bash44
+  '';
 
   buildInputs = [ openssl sqlite ];
-  buildFlags = [
-    "-Wall"
-    "-Wextra"
-    "-Wshadow"
-    "-Wold-style-cast"
-    "-Woverloaded-virtual"
-    "-pedantic"
-    "-std=c++2a"
-    "-O3"
-    "-march=native"
-  ];
+
   buildPhase = ''
-    $CXX $buildFlags */*.cc *.cc -lcrypto -lsqlite3 -o signalbackup-tools
+    runHook preBuild
+    ./BUILDSCRIPT_MULTIPROC.bash44${lib.optionalString stdenv.isDarwin " --config nixpkgs-darwin"}
+    runHook postBuild
   '';
 
   installPhase = ''
+    runHook preInstall
     mkdir -p $out/bin
     cp signalbackup-tools $out/bin/
+    runHook postInstall
   '';
 
   meta = with lib; {

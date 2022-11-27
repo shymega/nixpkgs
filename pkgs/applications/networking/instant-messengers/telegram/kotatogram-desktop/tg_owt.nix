@@ -63,12 +63,9 @@ stdenv.mkDerivation {
 
   postPatch = lib.optionalString stdenv.isLinux ''
     substituteInPlace src/modules/desktop_capture/linux/egl_dmabuf.cc \
-      --replace '"libEGL.so.1"' '"${libGL}/lib/libEGL.so.1"'
-    substituteInPlace src/modules/desktop_capture/linux/egl_dmabuf.cc \
-      --replace '"libGL.so.1"' '"${libGL}/lib/libGL.so.1"'
-    substituteInPlace src/modules/desktop_capture/linux/egl_dmabuf.cc \
-      --replace '"libgbm.so.1"' '"${mesa}/lib/libgbm.so.1"'
-    substituteInPlace src/modules/desktop_capture/linux/egl_dmabuf.cc \
+      --replace '"libEGL.so.1"' '"${libGL}/lib/libEGL.so.1"' \
+      --replace '"libGL.so.1"' '"${libGL}/lib/libGL.so.1"' \
+      --replace '"libgbm.so.1"' '"${mesa}/lib/libgbm.so.1"' \
       --replace '"libdrm.so.2"' '"${libdrm}/lib/libdrm.so.2"'
   '';
 
@@ -76,7 +73,7 @@ stdenv.mkDerivation {
 
   nativeBuildInputs = [ pkg-config cmake ninja yasm ];
 
-  buildInputs = [
+  propagatedBuildInputs = [
     libjpeg
     openssl
     libopus
@@ -122,14 +119,6 @@ stdenv.mkDerivation {
   NIX_LDFLAGS = lib.optionalString stdenv.isDarwin "-lc++abi";
 
   enableParallelBuilding = true;
-
-  propagatedBuildInputs = [
-    # Required for linking downstream binaries.
-    abseil-cpp
-    openh264
-    usrsctp
-    libvpx
-  ];
 
   meta.license = lib.licenses.bsd3;
 }

@@ -1,7 +1,10 @@
 { lib
 , stdenv
 , fetchFromGitHub
+, alsa-lib
 , appstream-glib
+, clang
+, cmake
 , desktop-file-utils
 , gio-sharp
 , glib
@@ -21,23 +24,26 @@
 
 stdenv.mkDerivation rec {
   pname = "rnote";
-  version = "0.4.0";
+  version = "0.5.7";
 
   src = fetchFromGitHub {
     owner = "flxzt";
     repo = "rnote";
     rev = "v${version}";
-    sha256 = "sha256-J7IW329rWFEoB+44762DAkWA8Hq4IVmXgc+QoDQaxV0=";
+    fetchSubmodules = true;
+    hash = "sha256-w4y+t8idcaNwvC2Wp9SRjcd4m23Zt+yHG2fjOA2rBU8=";
   };
 
   cargoDeps = rustPlatform.fetchCargoTarball {
     inherit src;
     name = "${pname}-${version}";
-    hash = "sha256-elXaikB/RemMxA4OXyZNQOgP1alImQMJHng5oX2j480=";
+    hash = "sha256-Hybbbokru4vz5ly3oZuNGdBa+lYbhdYjESUpRxIUqJc=";
   };
 
   nativeBuildInputs = [
     appstream-glib # For appstream-util
+    clang
+    cmake
     desktop-file-utils # For update-desktop-database
     meson
     ninja
@@ -50,7 +56,10 @@ stdenv.mkDerivation rec {
     wrapGAppsHook4
   ];
 
+  dontUseCmakeConfigure = true;
+
   buildInputs = [
+    alsa-lib
     gio-sharp
     glib
     gstreamer
@@ -59,6 +68,8 @@ stdenv.mkDerivation rec {
     libxml2
     poppler
   ];
+
+  LIBCLANG_PATH = "${clang.cc.lib}/lib";
 
   postPatch = ''
     pushd build-aux

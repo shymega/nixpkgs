@@ -10,13 +10,13 @@
 }:
 rustPlatform.buildRustPackage rec {
   pname = "polkadot";
-  version = "0.9.18";
+  version = "0.9.32";
 
   src = fetchFromGitHub {
     owner = "paritytech";
     repo = "polkadot";
     rev = "v${version}";
-    sha256 = "sha256-pjHSiVspBV15jKUFv+Uf2l3tah40l55Pv8vwDuwgwjc=";
+    sha256 = "sha256-bE7PzvkHKAP/nqNkoBMTGvZZwmf8YY+cGnJ2EM/2xAs=";
 
     # the build process of polkadot requires a .git folder in order to determine
     # the git commit hash that is being built and add it to the version string.
@@ -32,9 +32,9 @@ rustPlatform.buildRustPackage rec {
     '';
   };
 
-  cargoSha256 = "sha256-Gc5WbayQUlsl7Fk8NyLPh2Zg2yrLl3WJqKorNZMLi94=";
+  cargoSha256 = "sha256-NI50KFXvQgUV+G1l5D2gnAo1EohnCpQWlFCZ0iP2CVQ=";
 
-  buildInputs = lib.optional stdenv.isDarwin [ Security ];
+  buildInputs = lib.optionals stdenv.isDarwin [ Security ];
 
   nativeBuildInputs = [ clang ];
 

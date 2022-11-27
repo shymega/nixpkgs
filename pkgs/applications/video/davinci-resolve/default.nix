@@ -16,7 +16,8 @@
 , xkeyboard_config
 , glib
 , libarchive
-, python
+, libxcrypt
+, python2
 }:
 
 let
@@ -154,8 +155,9 @@ buildFHSUserEnv {
     ocl-icd
     glib
     libarchive
+    libxcrypt # provides libcrypt.so.1
     xdg-utils # xdg-open needed to open URLs
-    python
+    python2
     # currently they want python 3.6 which is EOL
     #python3
   ];

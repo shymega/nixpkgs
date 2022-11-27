@@ -67,6 +67,8 @@ lib.makeScope pkgs.newScope (self: with self; {
 
   elementary-feedback = callPackage ./apps/elementary-feedback { };
 
+  elementary-iconbrowser = callPackage ./apps/elementary-iconbrowser { };
+
   elementary-mail = callPackage ./apps/elementary-mail { };
 
   elementary-music = callPackage ./apps/elementary-music { };
@@ -120,6 +122,8 @@ lib.makeScope pkgs.newScope (self: with self; {
   #### LIBRARIES
 
   granite = callPackage ./granite { };
+
+  granite7 = callPackage ./granite/7 { };
 
   #### SERVICES
 

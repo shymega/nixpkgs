@@ -3,7 +3,7 @@
 , libX11, libXext, libSM, libXpm, libXt, libXaw, libXau, libXmu
 , libICE
 , vimPlugins
-, makeWrapper, makeBinaryWrapper
+, makeWrapper
 , wrapGAppsHook
 , runtimeShell
 
@@ -109,7 +109,7 @@ in stdenv.mkDerivation rec {
   ++ lib.optionals luaSupport [
     "--with-lua-prefix=${lua}"
     "--enable-luainterp"
-  ] ++ lib.optional lua.pkgs.isLuaJIT [
+  ] ++ lib.optionals lua.pkgs.isLuaJIT [
     "--with-luajit"
   ]
   ++ lib.optionals pythonSupport [
@@ -133,9 +133,7 @@ in stdenv.mkDerivation rec {
   ++ lib.optional wrapPythonDrv makeWrapper
   ++ lib.optional nlsSupport gettext
   ++ lib.optional perlSupport perl
-  # Make the inner wrapper binary to avoid double wrapping issues with wrapPythonDrv
-  # (https://github.com/NixOS/nixpkgs/pull/164163)
-  ++ lib.optional (guiSupport == "gtk3") (wrapGAppsHook.override { makeWrapper = makeBinaryWrapper; })
+  ++ lib.optional (guiSupport == "gtk3") wrapGAppsHook
   ;
 
   buildInputs = [

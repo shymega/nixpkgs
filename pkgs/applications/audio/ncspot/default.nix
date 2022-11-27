@@ -1,4 +1,4 @@
-{ stdenv, lib, fetchFromGitHub, rustPlatform, pkg-config, ncurses, openssl, libiconv
+{ stdenv, lib, fetchFromGitHub, rustPlatform, pkg-config, ncurses, openssl
 , withALSA ? true, alsa-lib
 , withPulseAudio ? false, libpulseaudio
 , withPortAudio ? false, portaudio
@@ -7,21 +7,21 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "ncspot";
-  version = "0.9.7";
+  version = "0.11.2";
 
   src = fetchFromGitHub {
     owner = "hrkfdn";
     repo = "ncspot";
     rev = "v${version}";
-    sha256 = "sha256-s2rWn6EK+io/yxQiWsWuXpqLOGd0F6ehWqVqgHBGZd0=";
+    sha256 = "sha256-xJzj387exWDvNias50fELvoAxgIoxDHVVRoAD4FJHUw=";
   };
 
-  cargoSha256 = "sha256-aorRy5j3VaOIibuHc6gf6HuB3g739T59vzbybehPirc=";
+  cargoSha256 = "sha256-6QOD8IhrnjyaOEYVYt2DA3dI6Wcu1tCXnIp+Ruc+EEo=";
 
   nativeBuildInputs = [ pkg-config ];
 
-  buildInputs = [ ncurses openssl ]
-    ++ lib.optional stdenv.isDarwin libiconv
+  buildInputs = [ ncurses ]
+    ++ lib.optional stdenv.isLinux openssl
     ++ lib.optional withALSA alsa-lib
     ++ lib.optional withPulseAudio libpulseaudio
     ++ lib.optional withPortAudio portaudio

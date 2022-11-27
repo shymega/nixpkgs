@@ -12,6 +12,7 @@
 , jsonref
 , jsonschema
 , matplotlib
+, nbclient
 , nbformat
 , pandas
 , pathtools
@@ -22,8 +23,9 @@
 , pytest-mock
 , pytest-xdist
 , pytestCheckHook
-, python-dateutil
 , pythonOlder
+, pythonRelaxDepsHook
+, torch
 , pyyaml
 , requests
 , scikit-learn
@@ -31,22 +33,35 @@
 , setproctitle
 , setuptools
 , shortuuid
+, substituteAll
 , tqdm
 }:
 
 buildPythonPackage rec {
   pname = "wandb";
-  version = "0.12.15";
+  version = "0.13.5";
   format = "setuptools";
 
   disabled = pythonOlder "3.6";
 
   src = fetchFromGitHub {
     owner = pname;
-    repo = "client";
-    rev = "v${version}";
-    hash = "sha256-Fq+JwUEZP1QDFKYVyiR8DUU0GQV6fK50FW78qaWh+Mo=";
+    repo = pname;
+    rev = "refs/tags/v${version}";
+    hash = "sha256-1GoFmncG5bUWJOIUDLatopQMxCFsmlcj8aofJMGUTzQ=";
   };
+
+  patches = [
+    # Replace git paths
+    (substituteAll {
+      src = ./hardcode-git-path.patch;
+      git = "${lib.getBin git}/bin/git";
+    })
+  ];
+
+  nativeBuildInputs = [
+    pythonRelaxDepsHook
+  ];
 
   # setuptools is necessary since pkg_resources is required at runtime.
   propagatedBuildInputs = [
@@ -57,7 +72,6 @@ buildPythonPackage rec {
     promise
     protobuf
     psutil
-    python-dateutil
     pyyaml
     requests
     sentry-sdk
@@ -73,67 +87,72 @@ buildPythonPackage rec {
     jsonref
     jsonschema
     matplotlib
+    nbclient
     nbformat
     pandas
     pydantic
     pytest-mock
     pytest-xdist
     pytestCheckHook
+    torch
     scikit-learn
     tqdm
   ];
 
-  # wandb expects git to be in PATH. See https://gist.github.com/samuela/57aeee710e41ab2bf361b7ed8fbbeabf
-  # for the error message, and an example usage here: https://github.com/wandb/client/blob/d5f655b7ca7e3eac2f3a67a84bc5c2a664a31baf/wandb/sdk/internal/meta.py#L128.
-  # See https://github.com/NixOS/nixpkgs/pull/164176#discussion_r828801621 as to
-  # why we don't put it in propagatedBuildInputs. Note that this is difficult to
-  # test offline due to https://github.com/wandb/client/issues/3519.
-  postInstall = ''
-    mkdir -p $out/bin
-    ln -s ${git}/bin/git $out/bin/git
+  preCheck = ''
+    export HOME=$(mktemp -d)
   '';
+
+  pythonRelaxDeps = [ "protobuf" ];
 
   disabledTestPaths = [
     # Tests that try to get chatty over sockets or spin up servers, not possible in the nix build environment.
-    "tests/test_cli.py"
-    "tests/test_data_types.py"
-    "tests/test_file_stream.py"
-    "tests/test_file_upload.py"
-    "tests/test_footer.py"
-    "tests/test_internal_api.py"
-    "tests/test_label_full.py"
-    "tests/test_login.py"
-    "tests/test_meta.py"
-    "tests/test_metric_full.py"
-    "tests/test_metric_internal.py"
-    "tests/test_mode_disabled.py"
-    "tests/test_mp_full.py"
-    "tests/test_public_api.py"
-    "tests/test_redir.py"
-    "tests/test_runtime.py"
-    "tests/test_sender.py"
-    "tests/test_start_method.py"
-    "tests/test_tb_watcher.py"
-    "tests/test_telemetry_full.py"
-    "tests/wandb_agent_test.py"
-    "tests/wandb_artifacts_test.py"
-    "tests/wandb_integration_test.py"
-    "tests/wandb_run_test.py"
-    "tests/wandb_settings_test.py"
-    "tests/wandb_sweep_test.py"
-    "tests/wandb_verify_test.py"
-    "tests/test_model_workflows.py"
-
-    # Fails and borks the pytest runner as well.
-    "tests/wandb_test.py"
+    "tests/unit_tests_old/test_cli.py"
+    "tests/unit_tests_old/test_data_types.py"
+    "tests/unit_tests_old/test_file_stream.py"
+    "tests/unit_tests_old/test_file_upload.py"
+    "tests/unit_tests_old/test_footer.py"
+    "tests/unit_tests_old/test_internal_api.py"
+    "tests/unit_tests_old/test_keras.py"
+    "tests/unit_tests_old/test_metric_internal.py"
+    "tests/unit_tests_old/test_public_api.py"
+    "tests/unit_tests_old/test_report_api.py"
+    "tests/unit_tests_old/test_runtime.py"
+    "tests/unit_tests_old/test_sender.py"
+    "tests/unit_tests_old/test_tb_watcher.py"
+    "tests/unit_tests_old/test_time_resolution.py"
+    "tests/unit_tests_old/test_wandb_agent.py"
+    "tests/unit_tests_old/test_wandb_artifacts.py"
+    "tests/unit_tests_old/test_wandb_integration.py"
+    "tests/unit_tests_old/test_wandb_run.py"
+    "tests/unit_tests/test_cli.py"
+    "tests/unit_tests/test_data_types.py"
+    "tests/unit_tests/test_file_upload.py"
+    "tests/unit_tests/test_footer.py"
+    "tests/unit_tests/test_internal_api.py"
+    "tests/unit_tests/test_label_full.py"
+    "tests/unit_tests/test_login.py"
+    "tests/unit_tests/test_metric_full.py"
+    "tests/unit_tests/test_metric_internal.py"
+    "tests/unit_tests/test_mode_disabled.py"
+    "tests/unit_tests/test_model_workflows.py"
+    "tests/unit_tests/test_mp_full.py"
+    "tests/unit_tests/test_plots.py"
+    "tests/unit_tests/test_public_api.py"
+    "tests/unit_tests/test_runtime.py"
+    "tests/unit_tests/test_sender.py"
+    "tests/unit_tests/test_start_method.py"
+    "tests/unit_tests/test_tb_watcher.py"
+    "tests/unit_tests/test_telemetry_full.py"
+    "tests/unit_tests/test_util.py"
 
     # Tries to access /homeless-shelter
-    "tests/test_tables.py"
+    "tests/unit_tests/test_tables.py"
   ];
 
   # Disable test that fails on darwin due to issue with python3Packages.psutil:
   # https://github.com/giampaolo/psutil/issues/1219
-  disabledTests = lib.optional stdenv.isDarwin [
+  disabledTests = lib.optionals stdenv.isDarwin [
     "test_tpu_system_stats"
   ];
 
@@ -143,7 +162,8 @@ buildPythonPackage rec {
 
   meta = with lib; {
     description = "A CLI and library for interacting with the Weights and Biases API";
-    homepage = "https://github.com/wandb/client";
+    homepage = "https://github.com/wandb/wandb";
+    changelog = "https://github.com/wandb/wandb/raw/v${version}/CHANGELOG.md";
     license = licenses.mit;
     maintainers = with maintainers; [ samuela ];
   };

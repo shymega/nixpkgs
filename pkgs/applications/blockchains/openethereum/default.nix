@@ -2,7 +2,6 @@
 , fetchFromGitHub
 , rustPlatform
 , cmake
-, llvmPackages
 , openssl
 , pkg-config
 , stdenv
@@ -38,9 +37,10 @@ rustPlatform.buildRustPackage rec {
 
   # Exclude some tests that don't work in the sandbox
   # - Nat test requires network access
-  checkFlags = "--skip configuration::tests::should_resolve_external_nat_hosts";
+  checkFlags = [ "--skip" "configuration::tests::should_resolve_external_nat_hosts" ];
 
   meta = with lib; {
+    broken = stdenv.isDarwin;
     description = "Fast, light, robust Ethereum implementation";
     homepage = "http://parity.io/ethereum";
     license = licenses.gpl3;

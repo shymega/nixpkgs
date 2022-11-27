@@ -4,27 +4,31 @@
 , setuptools-scm
 , ansible-compat
 , ansible-core
+, black
 , enrich
+, filelock
 , flaky
+, jsonschema
+, pythonOlder
+, pytest
+, pytest-xdist
+, pytestCheckHook
 , pyyaml
 , rich
 , ruamel-yaml
 , wcmatch
 , yamllint
-, pythonOlder
-, pytest-xdist
-, pytestCheckHook
 }:
 
 buildPythonPackage rec {
   pname = "ansible-lint";
-  version = "6.0.2";
+  version = "6.9.0";
   format = "pyproject";
-  disabled = pythonOlder "3.6";
+  disabled = pythonOlder "3.8";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-tTm8ItE+beDMLiV1jh0osrwBVhpBSuN87aNwi1oqee0=";
+    sha256 = "sha256-FO+RmSDErMmAVH3tC9Qjp6J6CyMnc45ZM0P0RvOxJsY=";
   };
 
   postPatch = ''
@@ -40,7 +44,11 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     ansible-compat
     ansible-core
+    black
     enrich
+    filelock
+    jsonschema
+    pytest # yes, this is an actual runtime dependency
     pyyaml
     rich
     ruamel-yaml
@@ -90,9 +98,9 @@ buildPythonPackage rec {
   makeWrapperArgs = [ "--prefix PATH : ${lib.makeBinPath [ ansible-core ]}" ];
 
   meta = with lib; {
-    homepage = "https://github.com/ansible-community/ansible-lint";
+    homepage = "https://github.com/ansible/ansible-lint";
     description = "Best practices checker for Ansible";
     license = licenses.mit;
-    maintainers = with maintainers; [ sengaya SuperSandro2000 ];
+    maintainers = with maintainers; [ sengaya ];
   };
 }

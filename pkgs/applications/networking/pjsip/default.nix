@@ -2,21 +2,26 @@
 
 stdenv.mkDerivation rec {
   pname = "pjsip";
-  version = "2.12";
+  version = "2.12.1";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = "pjproject";
     rev = version;
-    sha256 = "sha256-snp9+PlffU9Ay8o42PM8SqyP60hu9nozp457HM+0bM8=";
+    sha256 = "sha256-HIDL4xzzTu3irzrIOf8qSNCAvHGOMpi8EDeqZb8mMnc=";
   };
 
   patches = [
     ./fix-aarch64.patch
     (fetchpatch {
-      name = "CVE-2022-24764.patch";
-      url = "https://github.com/pjsip/pjproject/commit/560a1346f87aabe126509bb24930106dea292b00.patch";
-      sha256 = "1fy78v3clm0gby7qcq3ny6f7d7f4qnn01lkqq67bf2s85k2phisg";
+      name = "CVE-2022-39269.patch";
+      url = "https://github.com/pjsip/pjproject/commit/d2acb9af4e27b5ba75d658690406cec9c274c5cc.patch";
+      sha256 = "sha256-bKE/MrRAqN1FqD2ubhxIOOf5MgvZluHHeVXPjbR12iQ=";
+    })
+    (fetchpatch {
+      name = "CVE-2022-39244.patch";
+      url = "https://github.com/pjsip/pjproject/commit/c4d34984ec92b3d5252a7d5cddd85a1d3a8001ae.patch";
+      sha256 = "sha256-hTUMh6bYAizn6GF+sRV1vjKVxSf9pnI+eQdPOqsdJI4=";
     })
   ];
 
@@ -39,6 +44,7 @@ stdenv.mkDerivation rec {
   dontPatchELF = true;
 
   meta = with lib; {
+    broken = stdenv.isDarwin;
     description = "A multimedia communication library written in C, implementing standard based protocols such as SIP, SDP, RTP, STUN, TURN, and ICE";
     homepage = "https://pjsip.org/";
     license = licenses.gpl2Plus;

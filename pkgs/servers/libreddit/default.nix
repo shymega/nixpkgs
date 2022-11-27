@@ -8,18 +8,20 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "libreddit";
-  version = "0.22.6";
+  version = "0.24.1";
 
   src = fetchFromGitHub {
-    owner = "spikecodes";
+    owner = "libreddit";
     repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-Dx0eVg1T9WTHeIQO9hwUoCAcUgQey8rlZ5+uxPIX0Wc=";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-LS9yUjKv0GxK6wGo0f5jHAn7vyo+tvgHd3NWLYpAQOs=";
   };
 
-  cargoSha256 = "sha256-RGZgo9uxRmPpZzXu6AC2FPjOoZxLnh4gCjadAOTWJ4Q=";
+  cargoSha256 = "sha256-14tJLhWITCz/e+XuCww2GVZ+sXy08LQe+DpL4tkLUzE=";
 
-  buildInputs = lib.optional stdenv.isDarwin Security;
+  buildInputs = lib.optional stdenv.isDarwin [
+    Security
+  ];
 
   passthru.tests = {
     inherit (nixosTests) libreddit;
@@ -27,7 +29,8 @@ rustPlatform.buildRustPackage rec {
 
   meta = with lib; {
     description = "Private front-end for Reddit";
-    homepage = "https://github.com/spikecodes/libreddit";
+    homepage = "https://github.com/libreddit/libreddit";
+    changelog = "https://github.com/libreddit/libreddit/releases/tag/v${version}";
     license = with licenses; [ agpl3Only ];
     maintainers = with maintainers; [ fab jojosch ];
   };

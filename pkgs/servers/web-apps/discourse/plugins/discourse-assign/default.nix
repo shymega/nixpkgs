@@ -5,8 +5,8 @@ mkDiscoursePlugin {
   src = fetchFromGitHub {
     owner = "discourse";
     repo = "discourse-assign";
-    rev = "7a854fe5046783bcff6cc24fca818056e1b9414a";
-    sha256 = "sha256-SGGwj0V4mTXD33tLnH76tQD/f6IvDbacq23XbaRdLsI=";
+    rev = "1f2dfafcdebc153573e2e1a5bf32d7f63295b29a";
+    sha256 = "sha256-VggOirmGIl3ihegmblgqaP3dAVX66O1O5s9vgP2peH8=";
   };
   meta = with lib; {
     homepage = "https://github.com/discourse/discourse-docs";

@@ -14,6 +14,10 @@ stdenv.mkDerivation {
 
   strictDeps = true;
 
+  preConfigure = lib.optionalString (lib.versionAtLeast version "13.0.0") ''
+    cd llvm
+  '';
+
   cmakeFlags = [
     "-DBUILD_SHARED_LIBS=YES" # fixes bytecode builds
     "-DLLVM_OCAML_OUT_OF_TREE=TRUE"
@@ -38,7 +42,7 @@ stdenv.mkDerivation {
 
   meta = {
     inherit (libllvm.meta) license homepage;
-    platforms = ocaml.meta.platforms or [];
+    inherit (ocaml.meta) platforms;
     description = "OCaml bindings distributed with LLVM";
     maintainers = with lib.maintainers; [ vbgl ];
   };

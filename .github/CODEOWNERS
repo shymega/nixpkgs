@@ -37,6 +37,7 @@
 /pkgs/top-level/splice.nix                       @Ericson2314 @matthewbauer
 /pkgs/top-level/release-cross.nix                @Ericson2314 @matthewbauer
 /pkgs/stdenv/generic                             @Ericson2314 @matthewbauer
+/pkgs/stdenv/generic/check-meta.nix              @Ericson2314 @matthewbauer @piegamesde
 /pkgs/stdenv/cross                               @Ericson2314 @matthewbauer
 /pkgs/build-support/cc-wrapper                   @Ericson2314
 /pkgs/build-support/bintools-wrapper             @Ericson2314
@@ -50,8 +51,14 @@
 # Nixpkgs documentation
 /maintainers/scripts/db-to-md.sh @jtojnar @ryantm
 /maintainers/scripts/doc @jtojnar @ryantm
+
+/doc/* @fricklerhandwerk
 /doc/build-aux/pandoc-filters @jtojnar
-/doc/contributing/contributing-to-documentation.chapter.md @jtojnar
+/doc/builders/trivial-builders.chapter.md @fricklerhandwerk
+/doc/contributing/ @fricklerhandwerk
+/doc/contributing/contributing-to-documentation.chapter.md @jtojnar @fricklerhandwerk
+/doc/stdenv @fricklerhandwerk
+/doc/using @fricklerhandwerk
 
 # NixOS Internals
 /nixos/default.nix          @nbp @infinisil
@@ -98,18 +105,18 @@
 /pkgs/development/interpreters/python/hooks                 @FRidh @jonringer
 
 # Haskell
-/doc/languages-frameworks/haskell.section.md  @cdepillabout @sternenseemann @maralorn @expipiplus1
-/maintainers/scripts/haskell                  @cdepillabout @sternenseemann @maralorn @expipiplus1
-/pkgs/development/compilers/ghc               @cdepillabout @sternenseemann @maralorn @expipiplus1
-/pkgs/development/haskell-modules             @cdepillabout @sternenseemann @maralorn @expipiplus1
-/pkgs/test/haskell                            @cdepillabout @sternenseemann @maralorn @expipiplus1
-/pkgs/top-level/release-haskell.nix           @cdepillabout @sternenseemann @maralorn @expipiplus1
-/pkgs/top-level/haskell-packages.nix          @cdepillabout @sternenseemann @maralorn @expipiplus1
+/doc/languages-frameworks/haskell.section.md  @cdepillabout @sternenseemann @maralorn
+/maintainers/scripts/haskell                  @cdepillabout @sternenseemann @maralorn
+/pkgs/development/compilers/ghc               @cdepillabout @sternenseemann @maralorn
+/pkgs/development/haskell-modules             @cdepillabout @sternenseemann @maralorn
+/pkgs/test/haskell                            @cdepillabout @sternenseemann @maralorn
+/pkgs/top-level/release-haskell.nix           @cdepillabout @sternenseemann @maralorn
+/pkgs/top-level/haskell-packages.nix          @cdepillabout @sternenseemann @maralorn
 
 # Perl
-/pkgs/development/interpreters/perl @stigtsp @zakame
-/pkgs/top-level/perl-packages.nix   @stigtsp @zakame
-/pkgs/development/perl-modules      @stigtsp @zakame
+/pkgs/development/interpreters/perl @stigtsp @zakame @dasJ
+/pkgs/top-level/perl-packages.nix   @stigtsp @zakame @dasJ
+/pkgs/development/perl-modules      @stigtsp @zakame @dasJ
 
 # R
 /pkgs/applications/science/math/R   @jbedo
@@ -121,8 +128,6 @@
 
 # Rust
 /pkgs/development/compilers/rust @Mic92 @LnL7 @zowoq
-/pkgs/build-support/rust @zowoq
-/doc/languages-frameworks/rust.section.md @zowoq
 
 # C compilers
 /pkgs/development/compilers/gcc @matthewbauer
@@ -187,13 +192,14 @@
 /nixos/modules/services/networking/babeld.nix @mweinelt
 /nixos/modules/services/networking/kea.nix @mweinelt
 /nixos/modules/services/networking/knot.nix @mweinelt
+/nixos/modules/services/monitoring/prometheus/exporters/kea.nix @mweinelt
 /nixos/tests/babeld.nix @mweinelt
 /nixos/tests/kea.nix @mweinelt
 /nixos/tests/knot.nix @mweinelt
 
 # Dhall
-/pkgs/development/dhall-modules      @Gabriel439 @Profpatsch @ehmry
-/pkgs/development/interpreters/dhall @Gabriel439 @Profpatsch @ehmry
+/pkgs/development/dhall-modules      @Gabriella439 @Profpatsch @ehmry
+/pkgs/development/interpreters/dhall @Gabriella439 @Profpatsch @ehmry
 
 # Idris
 /pkgs/development/idris-modules @Infinisil
@@ -251,13 +257,12 @@
 
 # Go
 /doc/languages-frameworks/go.section.md @kalbasit @Mic92 @zowoq
+/pkgs/build-support/go @kalbasit @Mic92 @zowoq
 /pkgs/development/compilers/go @kalbasit @Mic92 @zowoq
-/pkgs/development/go-modules   @kalbasit @Mic92 @zowoq
-/pkgs/development/go-packages  @kalbasit @Mic92 @zowoq
 
 # GNOME
-/pkgs/desktops/gnome                              @jtojnar @hedning
-/pkgs/desktops/gnome/extensions       @piegamesde @jtojnar @hedning
+/pkgs/desktops/gnome                              @jtojnar
+/pkgs/desktops/gnome/extensions       @piegamesde @jtojnar
 
 # Cinnamon
 /pkgs/desktops/cinnamon @mkg20001
@@ -285,3 +290,12 @@
 /nixos/modules/services/misc/matrix-conduit.nix            @piegamesde
 /nixos/tests/matrix-appservice-irc.nix                     @piegamesde
 /nixos/tests/matrix-conduit.nix                            @piegamesde
+
+# Dotnet
+/pkgs/build-support/dotnet          @IvarWithoutBones
+/pkgs/development/compilers/dotnet  @IvarWithoutBones
+
+# Node.js
+/pkgs/build-support/node/build-npm-package      @winterqt
+/pkgs/build-support/node/fetch-npm-deps         @winterqt
+/doc/languages-frameworks/javascript.section.md @winterqt

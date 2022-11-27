@@ -1,20 +1,26 @@
 { lib
 , buildPythonPackage
-, fetchPypi
+, fetchFromGitHub
 , numpy
 , packaging
 , pandas
 , pyarrow
 , pytestCheckHook
+, pythonOlder
 }:
 
 buildPythonPackage rec {
   pname = "db-dtypes";
-  version = "1.0.0";
+  version = "1.0.4";
+  format = "setuptools";
 
-  src = fetchPypi {
-    inherit pname version;
-    sha256 = "3070d1a8d86ff0b5d9b16f15c5fab9c18893c6b3d5723cd95ee397b169049454";
+  disabled = pythonOlder "3.7";
+
+  src = fetchFromGitHub {
+    owner = "googleapis";
+    repo = "python-db-dtypes-pandas";
+    rev = "refs/tags/v${version}";
+    hash = "sha256-ilcVog6mhF83GVa68BppUzvKNRPdSDXla2MU6M2EzLg=";
   };
 
   propagatedBuildInputs = [
@@ -28,7 +34,9 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
-  pythonImportsCheck = [ "db_dtypes" ];
+  pythonImportsCheck = [
+    "db_dtypes"
+  ];
 
   meta = with lib; {
     description = "Pandas Data Types for SQL systems (BigQuery, Spanner)";

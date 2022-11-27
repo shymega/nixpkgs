@@ -32,16 +32,22 @@ with py.pkgs;
 
 buildPythonApplication rec {
   pname = "checkov";
-  version = "2.0.1077";
+  version = "2.1.20";
+  format = "setuptools";
 
   src = fetchFromGitHub {
     owner = "bridgecrewio";
     repo = pname;
     rev = version;
-    hash = "sha256-Jrwgm5diBSJGY0DFG6r6iv1VQwwawKy04K8/y8yokYI=";
+    hash = "sha256-dXpgm9S++jtBhuzX9db8Pm5LF6Qb4isXx5uyOGdWGUc=";
   };
 
+  patches = [
+    ./flake8-compat-5.x.patch
+  ];
+
   nativeBuildInputs = with py.pkgs; [
+    pythonRelaxDepsHook
     setuptools-scm
   ];
 
@@ -63,6 +69,7 @@ buildPythonApplication rec {
     docker
     dockerfile-parse
     dpath
+    flake8
     GitPython
     jmespath
     jsonpath-ng
@@ -89,14 +96,13 @@ buildPythonApplication rec {
     pytest-mock
     pytest-xdist
     pytestCheckHook
+    responses
   ];
 
-  postPatch = ''
-    substituteInPlace setup.py \
-      --replace "cyclonedx-python-lib>=0.11.0,<1.0.0" "cyclonedx-python-lib>=0.11.0" \
-      --replace "prettytable>=3.0.0" "prettytable" \
-      --replace "pycep-parser==0.3.4" "pycep-parser"
-  '';
+  pythonRelaxDeps = [
+    "bc-python-hcl2"
+    "pycep-parser"
+  ];
 
   preCheck = ''
     export HOME=$(mktemp -d);
@@ -134,6 +140,10 @@ buildPythonApplication rec {
   pythonImportsCheck = [
     "checkov"
   ];
+
+  postInstall = ''
+    chmod +x $out/bin/checkov
+  '';
 
   meta = with lib; {
     description = "Static code analysis tool for infrastructure-as-code";

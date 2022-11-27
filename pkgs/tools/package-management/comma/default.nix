@@ -2,43 +2,41 @@
 , fetchFromGitHub
 , fzy
 , lib
-, makeWrapper
-, nix
-, nix-index
+, makeBinaryWrapper
+, nix-index-unwrapped
 , rustPlatform
-, testVersion
+, testers
 }:
 
 rustPlatform.buildRustPackage rec {
   pname = "comma";
-  version = "1.2.3";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "nix-community";
     repo = "comma";
     rev = "v${version}";
-    sha256 = "sha256-emhvBaicLAnu/Kn4oxHngGa5BSxOEwbkhTLO5XvauMw=";
+    hash = "sha256-EPrXIDi0yO+AVriQgi3t91CLtmYtgmyEfWtFD+wH8As=";
   };
 
-  cargoSha256 = "sha256-mQxNo4VjW2Q0MYfU+RCb4Ayl9ClpxrSV8X4EKZ7PewA=";
+  cargoHash = "sha256-/1b3GF0flhvejZ3C/yOzRGl50sWR4IxprwRoMUYEvm8=";
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ makeBinaryWrapper ];
 
   postInstall = ''
     wrapProgram $out/bin/comma \
-      --prefix PATH : ${lib.makeBinPath [ nix fzy nix-index ]}
+      --prefix PATH : ${lib.makeBinPath [ fzy nix-index-unwrapped ]}
     ln -s $out/bin/comma $out/bin/,
   '';
 
   passthru.tests = {
-    version = testVersion { package = comma; };
+    version = testers.testVersion { package = comma; };
   };
 
   meta = with lib; {
     homepage = "https://github.com/nix-community/comma";
     description = "Runs programs without installing them";
     license = licenses.mit;
-    maintainers = with maintainers; [ Enzime artturin ];
-    platforms = platforms.all;
+    maintainers = with maintainers; [ Enzime artturin marsam ];
   };
 }

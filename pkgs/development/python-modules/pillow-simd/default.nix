@@ -1,5 +1,5 @@
 { lib, stdenv, buildPythonPackage, fetchFromGitHub, isPyPy, isPy3k
-, olefile, freetype, libjpeg, zlib, libtiff, libwebp, tcl, lcms2
+, olefile, freetype, libjpeg, zlib, libtiff, libwebp, libxcrypt, tcl, lcms2
 , libxcb, tk, libX11, openjpeg, libimagequant, pyroma, numpy, defusedxml
 , pytestCheckHook
 }@args:
@@ -19,6 +19,7 @@ import ../pillow/generic.nix (rec {
   };
 
   meta = with lib; {
+    broken = (stdenv.isLinux && stdenv.isAarch64) || stdenv.isDarwin;
     homepage = "https://python-pillow.github.io/pillow-perf/";
     description = "The friendly PIL fork - SIMD version";
     longDescription = ''

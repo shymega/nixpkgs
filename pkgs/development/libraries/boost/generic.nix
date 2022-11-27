@@ -1,4 +1,4 @@
-{ lib, stdenv, icu, expat, zlib, bzip2, python ? null, fixDarwinDylibNames, libiconv
+{ lib, stdenv, icu, expat, zlib, bzip2, python ? null, fixDarwinDylibNames, libiconv, libxcrypt
 , boost-build
 , fetchpatch
 , which
@@ -15,6 +15,7 @@
 , enableNumpy ? false
 , taggedLayout ? ((enableRelease && enableDebug) || (enableSingleThreaded && enableMultiThreaded) || (enableShared && enableStatic))
 , patches ? []
+, boostBuildPatches ? []
 , useMpi ? false
 , mpi
 , extraB2Args ? []
@@ -27,12 +28,10 @@
 # We must build at least one type of libraries
 assert enableShared || enableStatic;
 
-# Python isn't supported when cross-compiling
-assert enablePython -> stdenv.hostPlatform == stdenv.buildPlatform;
 assert enableNumpy -> enablePython;
 
 # Boost <1.69 can't be built on linux with clang >8, because pth was removed
-assert with lib; ((stdenv.isLinux && toolset == "clang" && !(versionOlder stdenv.cc.version "8.0.0")) -> !(versionOlder version "1.69"));
+assert with lib; (stdenv.isLinux && toolset == "clang" && versionAtLeast stdenv.cc.version "8.0.0") -> versionAtLeast version "1.69";
 
 with lib;
 let
@@ -82,10 +81,13 @@ let
     "-sEXPAT_LIBPATH=${expat.out}/lib"
 
     # TODO: make this unconditional
-  ] ++ optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
+  ] ++ optionals (stdenv.hostPlatform != stdenv.buildPlatform ||
+                  # required on mips; see 61d9f201baeef4c4bb91ad8a8f5f89b747e0dfe4
+                  (stdenv.hostPlatform.isMips && versionAtLeast version "1.79")) [
     "address-model=${toString stdenv.hostPlatform.parsed.cpu.bits}"
     "architecture=${if stdenv.hostPlatform.isMips64
                     then if versionOlder version "1.78" then "mips1" else "mips"
+                    else if stdenv.hostPlatform.parsed.cpu.name == "s390x" then "s390x"
                     else toString stdenv.hostPlatform.parsed.cpu.family}"
     "binary-format=${toString stdenv.hostPlatform.parsed.kernel.execFormat.name}"
     "target-os=${toString stdenv.hostPlatform.parsed.kernel.name}"
@@ -102,6 +104,7 @@ let
     ++ optional (toolset != null) "toolset=${toolset}"
     ++ optional (!enablePython) "--without-python"
     ++ optional needUserConfig "--user-config=user-config.jam"
+    ++ optional (stdenv.buildPlatform.isDarwin && stdenv.hostPlatform.isLinux) "pch=off"
     ++ optionals (stdenv.hostPlatform.libc == "msvcrt") [
     "threadapi=win32"
   ] ++ extraB2Args
@@ -117,10 +120,7 @@ stdenv.mkDerivation {
   patchFlags = [];
 
   patches = patches
-  ++ optional stdenv.isDarwin (
-    if version == "1.55.0"
-    then ./darwin-1.55-no-system-python.patch
-    else ./darwin-no-system-python.patch)
+  ++ optional stdenv.isDarwin ./darwin-no-system-python.patch
   # Fix boost-context segmentation faults on ppc64 due to ABI violation
   ++ optional (versionAtLeast version "1.61" &&
                versionOlder version "1.71") (fetchpatch {
@@ -143,7 +143,7 @@ stdenv.mkDerivation {
     stripLen = 1;
     extraPrefix = "libs/context/";
   })
-  ++ optional (and (versionAtLeast version "1.70") (!versionAtLeast version "1.73")) ./cmake-paths.patch
+  ++ optional (versionAtLeast version "1.70" && versionOlder version "1.73") ./cmake-paths.patch
   ++ optional (versionAtLeast version "1.73") ./cmake-paths-173.patch
   ++ optional (version == "1.77.0") (fetchpatch {
     url = "https://github.com/boostorg/math/commit/7d482f6ebc356e6ec455ccb5f51a23971bf6ce5b.patch";
@@ -168,6 +168,10 @@ stdenv.mkDerivation {
       stdenv.hostPlatform.isMips64n32 ||
       # the patch above does not apply cleanly to pre-1.65 boost
       (stdenv.hostPlatform.isMips64n64 && (versionOlder version "1.65"));
+  };
+
+  passthru = {
+    inherit boostBuildPatches;
   };
 
   preConfigure = optionalString useMpi ''
@@ -214,7 +218,7 @@ stdenv.mkDerivation {
     ++ optional stdenv.hostPlatform.isDarwin fixDarwinDylibNames;
   buildInputs = [ expat zlib bzip2 libiconv ]
     ++ optional (stdenv.hostPlatform == stdenv.buildPlatform) icu
-    ++ optional enablePython python
+    ++ optionals enablePython [ libxcrypt python ]
     ++ optional enableNumpy python.pkgs.numpy;
 
   configureScript = "./bootstrap.sh";

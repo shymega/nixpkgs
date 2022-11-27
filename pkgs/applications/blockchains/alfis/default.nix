@@ -2,6 +2,7 @@
 , lib
 , rustPlatform
 , fetchFromGitHub
+, fetchpatch
 , pkg-config
 , makeWrapper
 , webkitgtk
@@ -14,16 +15,24 @@
 
 rustPlatform.buildRustPackage rec {
   pname = "alfis";
-  version = "0.7.0";
+  version = "0.8.3";
 
   src = fetchFromGitHub {
     owner = "Revertron";
     repo = "Alfis";
     rev = "v${version}";
-    sha256 = "sha256-lamobXaDY+v8NpoI+TuuBO5Cdol9+7VPhdmLEH6sZIo=";
+    sha256 = "sha256-QOKFnre5MW9EvrKrKBHWpOxi2fBKTDMhzCDX3ISd2cQ=";
   };
 
-  cargoSha256 = "sha256-C5MCT4EG/lI4s2rVGSm9DgBu43FKpp3iTBbCf7N1jOA=";
+  cargoPatches = [
+    (fetchpatch {
+      name = "bump-rust-web-view.patch";
+      url = "https://github.com/Revertron/Alfis/commit/03b461a740ab6ccbacd576eafc7a3faf4a66648f.patch";
+      sha256 = "sha256-CSqSMdVD31w7QxxXWtjKmqlaEirmbs1EVuiefSf1NKY=";
+    })
+  ];
+
+  cargoSha256 = "sha256-B4xI++U6RCljXCyaOmNj/SwA6I16zoiZsgk2VTiKfkg=";
 
   checkFlags = [
     # these want internet access, disable them

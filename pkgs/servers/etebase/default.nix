@@ -1,44 +1,32 @@
-{ lib, stdenv, python3, fetchFromGitHub }:
-
-let
-  py = python3.override {
-    packageOverrides = self: super: {
-      django = super.django_3;
-    };
-  };
-in
-  with py.pkgs;
+{ lib, fetchFromGitHub, buildPythonPackage, aiofiles, django_3
+, fastapi, msgpack, pynacl, redis, typing-extensions
+, withLdap ? true, python-ldap
+, withPostgres ? true, psycopg2 }:
 
 buildPythonPackage rec {
   pname = "etebase-server";
-  version = "0.8.3";
-  format = "pyproject";
+  version = "0.10.0";
+  format = "other";
 
   src = fetchFromGitHub {
     owner = "etesync";
     repo = "server";
     rev = "v${version}";
-    sha256 = "sha256-rPs34uzb5veiOw74SACLrDm4Io0CYH9EL9IuV38CkPY=";
+    sha256 = "sha256-z6aiXSWdLcDfOpqC5epsclXWxJq59MqWDQOnnFqGwz4=";
   };
 
   patches = [ ./secret.patch ];
 
-  propagatedBuildInputs = with pythonPackages; [
-    asgiref
-    cffi
-    django
-    django-cors-headers
-    djangorestframework
-    drf-nested-routers
+  propagatedBuildInputs = [
+    aiofiles
+    django_3
     fastapi
     msgpack
-    psycopg2
-    pycparser
     pynacl
-    pytz
-    six
-    sqlparse
-  ];
+    redis
+    typing-extensions
+  ] ++ lib.optional withLdap python-ldap
+    ++ lib.optional withPostgres psycopg2;
 
   installPhase = ''
     mkdir -p $out/bin $out/lib

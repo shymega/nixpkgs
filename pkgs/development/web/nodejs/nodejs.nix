@@ -67,7 +67,7 @@ let
     configureFlags = let
       isCross = stdenv.hostPlatform != stdenv.buildPlatform;
       inherit (stdenv.hostPlatform) gcc isAarch32;
-    in sharedConfigureFlags ++ [
+    in sharedConfigureFlags ++ optionals (versionOlder version "19") [
       "--without-dtrace"
     ] ++ (optionals isCross [
       "--cross-compiling"
@@ -123,7 +123,6 @@ let
           --replace "/usr/bin/env" "${coreutils}/bin/env"
       done
     '' + optionalString stdenv.isDarwin ''
-      sed -i 's/raise.*No Xcode or CLT version detected.*/version = "7.0.0"/' tools/gyp/pylib/gyp/xcode_emulation.py
       sed -i -e "s|tr1/type_traits|type_traits|g" \
              -e "s|std::tr1|std|" src/util.h
     '';
@@ -136,7 +135,7 @@ let
 
       ${optionalString (enableNpm && stdenv.hostPlatform == stdenv.buildPlatform) ''
         mkdir -p $out/share/bash-completion/completions/
-        $out/bin/npm completion > $out/share/bash-completion/completions/npm || :
+        HOME=$TMPDIR $out/bin/npm completion > $out/share/bash-completion/completions/npm
         for dir in "$out/lib/node_modules/npm/man/"*; do
           mkdir -p $out/share/man/$(basename "$dir")
           for page in "$dir"/*; do
@@ -176,8 +175,6 @@ let
       Libs: -L$libv8/lib -lv8 -pthread -licui18n
       Cflags: -I$libv8/include
       EOF
-    '' + optionalString (stdenv.isDarwin && enableNpm) ''
-      sed -i 's/raise.*No Xcode or CLT version detected.*/version = "7.0.0"/' $out/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/gyp/xcode_emulation.py
     '';
 
     passthru.updateScript = import ./update.nix {
@@ -194,7 +191,7 @@ let
       maintainers = with maintainers; [ goibhniu gilligan cko marsam ];
       platforms = platforms.linux ++ platforms.darwin;
       mainProgram = "node";
-      knownVulnerabilities = optional (versionOlder version "12") "This NodeJS release has reached its end of life. See https://nodejs.org/en/about/releases/.";
+      knownVulnerabilities = optional (versionOlder version "14") "This NodeJS release has reached its end of life. See https://nodejs.org/en/about/releases/.";
     };
 
     passthru.python = python; # to ensure nodeEnv uses the same version

@@ -11,23 +11,28 @@
 , six
 , tabulate
 , typing-extensions
+, pythonRelaxDepsHook
+, pytest-runner
 }:
 
 buildPythonPackage rec {
   pname = "onnx";
-  version = "1.11.0";
+  version = "1.12.0";
   format = "setuptools";
 
   disabled = isPy27;
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-7KIkx8LI7kByoHQ+SJioSpvfgpe15ZEKJjLkxBgv+yo=";
+    sha256 = "sha256-E7PnfSdSO52/TzDfyclZRVhZ1eNOkhxE9xLWm4Np7/k=";
   };
 
   nativeBuildInputs = [
     cmake
+    pythonRelaxDepsHook
   ];
+
+  pythonRelaxDeps = [ "protobuf" ];
 
   propagatedBuildInputs = [
     protobuf
@@ -39,6 +44,7 @@ buildPythonPackage rec {
   checkInputs = [
     nbval
     pytestCheckHook
+    pytest-runner
     tabulate
   ];
 
@@ -47,13 +53,16 @@ buildPythonPackage rec {
     patchShebangs tools/protoc-gen-mypy.py
     substituteInPlace tools/protoc-gen-mypy.sh.in \
       --replace "/bin/bash" "${bash}/bin/bash"
-    substituteInPlace setup.py \
-      --replace "setup_requires.append('pytest-runner')" ""
   '';
 
   preBuild = ''
     export MAX_JOBS=$NIX_BUILD_CORES
   '';
+
+  disabledTestPaths = [
+    # Unexpected output fields from running code: {'stderr'}
+    "onnx/examples/np_array_tensorproto.ipynb"
+  ];
 
   # The executables are just utility scripts that aren't too important
   postInstall = ''

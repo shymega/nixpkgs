@@ -8,14 +8,14 @@
 
 buildPythonPackage rec {
   pname = "pyTelegramBotAPI";
-  version = "4.4.1";
+  version = "4.7.0";
   format = "setuptools";
 
   disabled = pythonOlder "3.7";
 
   src = fetchPypi {
     inherit pname version;
-    hash = "sha256-3Qppp/UDKiGChnvMOgW8EKygI75gYzv37c0ctExmK+g=";
+    hash = "sha256-sVu518B+PDSpW6MhYtNWkPpwuT471VfGuDDtpL7Mo/U=";
   };
 
   propagatedBuildInputs = [

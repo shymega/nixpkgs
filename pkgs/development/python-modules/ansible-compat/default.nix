@@ -1,7 +1,7 @@
 { lib
 , buildPythonPackage
 , fetchPypi
-, ansible
+, ansible-core
 , flaky
 , pytest-mock
 , pytestCheckHook
@@ -12,12 +12,12 @@
 
 buildPythonPackage rec {
   pname = "ansible-compat";
-  version = "2.0.2";
+  version = "2.2.5";
   format = "pyproject";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-xlGZXcMj7xRbq4V/7mVA/ryIH7cbf+r+gWPUnicxY6U=";
+    sha256 = "sha256-KMfFRf1g75wwWc+y/v0n+S2wkf9rWGj4PxIc614f4bU=";
   };
 
   nativeBuildInputs = [
@@ -35,7 +35,7 @@ buildPythonPackage rec {
   '';
 
   checkInputs = [
-    ansible
+    ansible-core
     flaky
     pytest-mock
     pytestCheckHook
@@ -61,6 +61,6 @@ buildPythonPackage rec {
     description = "A python package containing functions that help interacting with various versions of Ansible";
     homepage = "https://github.com/ansible/ansible-compat";
     license = licenses.mit;
-    maintainers = with maintainers; [ SuperSandro2000 ];
+    maintainers = with maintainers; [ ];
   };
 }

@@ -3,11 +3,11 @@
 
 buildPythonApplication rec {
   pname = "pmbootstrap";
-  version = "1.43.0";
+  version = "1.50.0";
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "sha256-4bPxWmzlyVZrkq9qs/5t+ZOsVDkAAwYc6Mc4een4Qnw=";
+    hash = "sha256-UtXUq+B3EMHS3CTqfzbyQK0gHgrFwcwQ6zTzw/EwIuA=";
   };
 
   repo = fetchFromGitLab {
@@ -15,7 +15,7 @@ buildPythonApplication rec {
     owner = "postmarketOS";
     repo = pname;
     rev = version;
-    sha256 = "sha256-jbTzPGrRVisLG7f4NspkDVB8NYSyyInHkhSUPO3dgU0=";
+    hash = "sha256-wuNsmc7FBk05VgH+E4uwMJeZRTlqAUe6kLvHqCLAwEY=";
   };
 
   pmb_test = "${repo}/test";

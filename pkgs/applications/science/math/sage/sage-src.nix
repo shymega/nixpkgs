@@ -1,7 +1,6 @@
 { stdenv
 , fetchFromGitHub
 , fetchpatch
-, runtimeShell
 }:
 
 # This file is responsible for fetching the sage source and adding necessary patches.
@@ -58,30 +57,19 @@ let
   );
 in
 stdenv.mkDerivation rec {
-  version = "9.5";
+  version = "9.7";
   pname = "sage-src";
 
   src = fetchFromGitHub {
     owner = "sagemath";
     repo = "sage";
     rev = version;
-    sha256 = "sha256-uOsLpsGpcIGs8Xr82X82MElnTB2E908gytyNJ8WVD5w=";
+    sha256 = "sha256-MYpCp18wqKwCa+tcJ7He14p1FXDlVm1vubQqQS9g3LY=";
   };
 
   # Patches needed because of particularities of nix or the way this is packaged.
   # The goal is to upstream all of them and get rid of this list.
   nixPatches = [
-    # Since https://trac.sagemath.org/ticket/32174, some external features are
-    # marked as "safe" and get auto-detected, in which case the corresponding
-    # optional tests are executed. We disable auto-detection of safe features if
-    # we are doctesting with an "--optional" argument which does not include
-    # "sage", because tests from autodetected features expect context provided
-    # by running basic sage tests. This is necessary to test sagemath_doc_html
-    # separately. See https://trac.sagemath.org/ticket/26110 for a related
-    # upstream discussion (from the time when Sage still had optional py2/py3
-    # tags).
-    ./patches/Only-test-external-software-when-all-of-sage-is.patch
-
     # Fixes a potential race condition which can lead to transient doctest failures.
     ./patches/fix-ecl-race.patch
 
@@ -92,6 +80,10 @@ stdenv.mkDerivation rec {
     # Parallelize docubuild using subprocesses, fixing an isolation issue. See
     # https://groups.google.com/forum/#!topic/sage-packaging/YGOm8tkADrE
     ./patches/sphinx-docbuild-subprocesses.patch
+
+    # Docbuilding copies files from the Nix store and expects them to be writable.
+    # Remove when https://github.com/matplotlib/matplotlib/pull/23805 lands.
+    ./patches/sphinx-fix-matplotlib-css-perms.patch
   ];
 
   # Since sage unfortunately does not release bugfix releases, packagers must
@@ -120,85 +112,54 @@ stdenv.mkDerivation rec {
     # https://trac.sagemath.org/ticket/32959
     ./patches/linbox-1.7-upgrade.patch
 
-    # https://trac.sagemath.org/ticket/33170
-    (fetchSageDiff {
-      base = "9.6.beta5";
-      name = "ipython-8.1-update.patch";
-      rev = "4d2b53f1541375861310af3a7f7109c1c2ed475d";
-      sha256 = "sha256-ELda/VBzsQH7NdFas69fQ35QPUoJCeLx/gxT1j7qGR8=";
-    })
-
-    # https://trac.sagemath.org/ticket/32968
-    (fetchSageDiff {
-      base = "9.5";
-      name = "sphinx-4.3-update.patch";
-      rev = "fc84f82f52b6f05f512cb359ec7c100f93cf8841";
-      sha256 = "sha256-bBbfdcnw/9LUOlY8rHJRbFJEdMXK4shosqTNaobTS1Q=";
-    })
-
-    # https://trac.sagemath.org/ticket/33189
-    (fetchSageDiff {
-      base = "9.5";
-      name = "arb-2.22-update.patch";
-      rev = "53532ddd4e2dc92469c1590ebf0c40f8f69bf579";
-      sha256 = "sha256-6SoSBvIlqvNwZV3jTB6uPdUtaWIOeNmddi2poK/WvGs=";
-    })
-
-    # TODO: This will not be necessary when Sphinx 4.4.1 is released,
-    # since some warnings introduced in 4.4.0 will be disabled by then
-    # (https://github.com/sphinx-doc/sphinx/pull/10126).
-    # https://trac.sagemath.org/ticket/33272
-    (fetchSageDiff {
-      base = "9.5";
-      name = "sphinx-4.4-warnings.patch";
-      rev = "97d7958bed441cf2ccc714d88f83d3a8426bc085";
-      sha256 = "sha256-y1STE0oxswnijGCsBw8eHWWqpmT1XMznIfA0vvX9pFA=";
-    })
-
     # adapted from https://trac.sagemath.org/ticket/23712#comment:22
     ./patches/tachyon-renamed-focallength.patch
 
-    # https://trac.sagemath.org/ticket/33336
+    # https://trac.sagemath.org/ticket/34118
     (fetchSageDiff {
-      base = "9.6.beta2";
-      name = "scipy-1.8-update.patch";
-      rev = "9c8235e44ffb509efa8a3ca6cdb55154e2b5066d";
-      sha256 = "sha256-bfc4ljNOxVnhlmxIuNbjbKl4vJXYq2tlF3Z8bbC8PWw=";
+      name = "sympy-1.11-upgrade.patch";
+      base = "9.7";
+      rev = "52815744bde2b682245b6f985a112f7cb8666056";
+      sha256 = "sha256-gv6z6JkQ6S6oCJQNkVgcPVvzlplyvR1nC7pWmcUiSc0=";
     })
 
-    # https://trac.sagemath.org/ticket/33495
+    # https://trac.sagemath.org/ticket/34460
     (fetchSageDiff {
-      base = "9.6.beta5";
-      name = "networkx-2.7-update.patch";
-      rev = "8452003846a7303100847d8d0ed642fc642c11d6";
-      sha256 = "sha256-A/XMouPlc2sjFp30L+56fBGJXydS2EtzfPOV98FCDqI=";
+      name = "ipywidgets-8-upgrade.patch";
+      base = "9.7";
+      rev = "2816dbacb342398a23bb3099e20c92c8020ab0fa";
+      sha256 = "sha256-tCOsMxXwPkRg3FJGVvTqDzlWdra78UfDY6nci0Nr9GI=";
     })
 
-    # https://trac.sagemath.org/ticket/33226
+    # https://trac.sagemath.org/ticket/34391
     (fetchSageDiff {
-      base = "9.6.beta0";
-      name = "giac-1.7.0-45-update.patch";
-      rev = "33ea2adf01e9e2ce9f1e33779f0b1ac0d9d1989c";
-      sha256 = "sha256-DOyxahf3+IaYdkgmAReNDCorRzMgO8+yiVrJ5TW1km0=";
+      name = "gap-4.12-upgrade.patch";
+      base = "9.8.beta2";
+      rev = "eb8cd42feb58963adba67599bf6e311e03424328";
+      sha256 = "sha256-0dKewOZe2n3PqSdxCJt18FkqwTdrD0VA5MXAMiTW8Tw=";
     })
 
-    # https://trac.sagemath.org/ticket/33398
+    # https://trac.sagemath.org/ticket/34701
     (fetchSageDiff {
-      base = "9.6.beta4";
-      name = "sympy-1.10-update.patch";
-      rev = "6b7c3a28656180e42163dc10f7b4a571b93e5f27";
-      sha256 = "sha256-fnUyM2yjHkCykKRfzQQ4glcUYmCS/fYzDzmCf0nuebk=";
-      # The patch contains a whitespace change to a file that didn't exist in Sage 9.5.
-      excludes = [ "build/*" "src/sage/manifolds/vector_bundle_fiber_element.py" ];
+      name = "libgap-fix-gc-crashes-on-aarch64.patch";
+      base = "eb8cd42feb58963adba67599bf6e311e03424328"; # TODO: update when #34391 lands
+      rev = "90acc7f1c13a80b8aa673469a2668feb9cd4207f";
+      sha256 = "sha256-9BhQLFB3wUhiXRQsK9L+I62lSjvTfrqMNi7QUIQvH4U=";
     })
 
-    # docutils 0.18.1 now triggers Sphinx warnings. tolerate them for
-    # now, because patching Sphinx is not feasible.
-    # https://github.com/sphinx-doc/sphinx/issues/9777#issuecomment-1104481271
-    ./patches/docutils-0.18.1-deprecation.patch
+    # Sage uses mixed integer programs (MIPs) to find edge disjoint
+    # spanning trees. For some reason, aarch64 glpk takes much longer
+    # than x86_64 glpk to solve such MIPs. Since the MIP formulation
+    # has "numerous problems" and will be replaced by a polynomial
+    # algorithm soon, disable this test for now.
+    # https://trac.sagemath.org/ticket/34575
+    ./patches/disable-slow-glpk-test.patch
   ];
 
   patches = nixPatches ++ bugfixPatches ++ packageUpgradePatches;
+
+  # do not create .orig backup files if patch applies with fuzz
+  patchFlags = [ "--no-backup-if-mismatch" "-p1" ];
 
   postPatch = ''
     # Make sure sage can at least be imported without setting any environment

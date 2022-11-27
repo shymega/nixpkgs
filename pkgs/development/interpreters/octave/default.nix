@@ -25,6 +25,7 @@
 , fftwSinglePrec
 , zlib
 , curl
+, rapidjson
 , blas, lapack
 # These two should use the same lapack and blas as the above
 , qrupdate, arpack, suitesparse ? null
@@ -111,12 +112,12 @@ let
   };
 
   self = mkDerivation rec {
-    version = "7.1.0";
+    version = "7.3.0";
     pname = "octave";
 
     src = fetchurl {
       url = "mirror://gnu/octave/${pname}-${version}.tar.gz";
-      sha256 = "sha256-1KnYHz9ntKbgfLeoDcsQrV6RdvzDB2LHCoFYCmS4sLY=";
+      sha256 = "sha256-bhSkZJ1wr0WrZg+Mu/ZFqvHsM/JfiL/aRpfLF+RAxPU=";
     };
 
     buildInputs = [
@@ -130,6 +131,7 @@ let
       fltk
       zlib
       curl
+      rapidjson
       blas'
       lapack'
       libsndfile

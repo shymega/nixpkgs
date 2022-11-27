@@ -2,6 +2,7 @@
 , withLinuxHeaders ? true
 , profilingLibraries ? false
 , withGd ? false
+, withLibcrypt? false
 , buildPackages
 }:
 
@@ -16,7 +17,7 @@ in
 callPackage ./common.nix { inherit stdenv; } {
     pname = "glibc" + lib.optionalString withGd "-gd";
 
-    inherit withLinuxHeaders profilingLibraries withGd;
+    inherit withLinuxHeaders profilingLibraries withGd withLibcrypt;
 
     # Note:
     # Things you write here override, and do not add to,
@@ -38,15 +39,15 @@ callPackage ./common.nix { inherit stdenv; } {
 
       # Apparently --bindir is not respected.
       makeFlagsArray+=("bindir=$bin/bin" "sbindir=$bin/sbin" "rootsbindir=$bin/sbin")
+    '' + lib.optionalString stdenv.buildPlatform.isDarwin ''
+      # ld-wrapper will otherwise attempt to inject CoreFoundation into ld-linux's RUNPATH
+      export NIX_COREFOUNDATION_RPATH=
     '';
 
-    # The stackprotector and fortify hardening flags are autodetected by glibc
-    # and enabled by default if supported. Setting it for every gcc invocation
-    # does not work.
-    hardeningDisable = [ "stackprotector" "fortify" ]
-    # XXX: Not actually musl-speciic but since only musl enables pie by default,
-    #      limit rebuilds by only disabling pie w/musl
-      ++ lib.optional stdenv.hostPlatform.isMusl "pie";
+    # The pie, stackprotector and fortify hardening flags are autodetected by
+    # glibc and enabled by default if supported. Setting it for every gcc
+    # invocation does not work.
+    hardeningDisable = [ "fortify" "pie" "stackprotector" ];
 
     NIX_CFLAGS_COMPILE = lib.concatStringsSep " "
       (builtins.concatLists [
@@ -67,8 +68,12 @@ callPackage ./common.nix { inherit stdenv; } {
     # store path than that determined when built (as a source for the
     # bootstrap-tools tarball)
     # Building from a proper gcc staying in the path where it was installed,
-    # libgcc_s will not be at {gcc}/lib, and gcc's libgcc will be found without
+    # libgcc_s will now be at {gcc}/lib, and gcc's libgcc will be found without
     # any special hack.
+    # TODO: remove this hack. Things that rely on this hack today:
+    # - dejagnu: during linux bootstrap tcl SIGSEGVs
+    # - clang-wrapper in cross-compilation
+    # Last attempt: https://github.com/NixOS/nixpkgs/pull/36948
     preInstall = ''
       if [ -f ${stdenv.cc.cc}/lib/libgcc_s.so.1 ]; then
           mkdir -p $out/lib
@@ -80,7 +85,7 @@ callPackage ./common.nix { inherit stdenv; } {
 
     postInstall = (if stdenv.hostPlatform == stdenv.buildPlatform then ''
       echo SUPPORTED-LOCALES=C.UTF-8/UTF-8 > ../glibc-2*/localedata/SUPPORTED
-      make -j''${NIX_BUILD_CORES:-1} -l''${NIX_BUILD_CORES:-1} localedata/install-locales
+      make -j''${NIX_BUILD_CORES:-1} localedata/install-locales
     '' else lib.optionalString stdenv.buildPlatform.isLinux ''
       # This is based on http://www.linuxfromscratch.org/lfs/view/development/chapter06/glibc.html
       # Instead of using their patch to build a build-native localedef,
@@ -130,15 +135,6 @@ callPackage ./common.nix { inherit stdenv; } {
       ln -sf $out/lib/libdl.so.2 $out/lib/libdl.so
       ln -sf $out/lib/libutil.so.1 $out/lib/libutil.so
       touch $out/lib/libpthread.a
-    ''
-      # For some reason these aren't stripped otherwise and retain reference
-      # to bootstrap-tools; on cross-arm this stripping would break objects.
-    + lib.optionalString (stdenv.hostPlatform == stdenv.buildPlatform) ''
-
-      for i in "$out"/lib/*.a; do
-          [ "$i" = "$out/lib/libm.a" ] || $STRIP -S "$i"
-      done
-    '' + ''
 
       # Put libraries for static linking in a separate output.  Note
       # that libc_nonshared.a and libpthread_nonshared.a are required

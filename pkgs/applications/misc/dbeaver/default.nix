@@ -14,7 +14,7 @@
 , libXtst
 , zlib
 , maven
-, webkitgtk
+, webkitgtk_4_1
 , glib-networking
 , javaPackages
 }:
@@ -23,16 +23,16 @@
   inherit maven; # use overridden maven version (see dbeaver's entry in all-packages.nix)
 }) rec {
   pname = "dbeaver";
-  version = "22.0.2"; # When updating also update mvnSha256
+  version = "22.2.2"; # When updating also update mvnSha256
 
   src = fetchFromGitHub {
     owner = "dbeaver";
     repo = "dbeaver";
     rev = version;
-    sha256 = "sha256-3tIxHw4734ggIUDjZO2EGIMbyPNP3yvy9QgnMLw+/fc=";
+    sha256 = "sha256-TUdtrhQ1JzqZx+QNauNA1P/+WDSSeOGIgGX3SdS0JTI=";
   };
 
-  mvnSha256 = "os3eb+In8XreHwdZMacXafIVgOAeSSfCIkO5pwaO6MI=";
+  mvnSha256 = "uu7UNRIuAx2GOh4+YxxoGRcV5QO8C72q32e0ynJdgFo=";
   mvnParameters = "-P desktop,all-platforms";
 
   nativeBuildInputs = [
@@ -52,7 +52,7 @@
     libXtst
     zlib
   ] ++ lib.optionals stdenv.isLinux [
-    webkitgtk
+    webkitgtk_4_1
     glib-networking
   ];
 
@@ -73,6 +73,7 @@
       productTargetPath = "product/community/target/products/org.jkiss.dbeaver.core.product";
 
       platformMap = {
+        aarch64-darwin = "aarch64";
         aarch64-linux = "aarch64";
         x86_64-darwin = "x86_64";
         x86_64-linux  = "x86_64";
@@ -107,7 +108,7 @@
 
       makeWrapper $out/dbeaver/dbeaver $out/bin/dbeaver \
         --prefix PATH : ${jdk}/bin \
-        --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath ([ glib gtk3 libXtst webkitgtk glib-networking ])} \
+        --prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath ([ glib gtk3 libXtst webkitgtk_4_1 glib-networking ])} \
         --prefix GIO_EXTRA_MODULES : "${glib-networking}/lib/gio/modules" \
         --prefix XDG_DATA_DIRS : "$GSETTINGS_SCHEMAS_PATH"
 
@@ -126,8 +127,12 @@
       PostgreSQL, MariaDB, SQLite, Oracle, DB2, SQL Server, Sybase, MS Access,
       Teradata, Firebird, Derby, etc.
     '';
+    sourceProvenance = with sourceTypes; [
+      fromSource
+      binaryBytecode  # dependencies from maven
+    ];
     license = licenses.asl20;
-    platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" ];
+    platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
     maintainers = with maintainers; [ jojosch mkg20001 ];
   };
 }

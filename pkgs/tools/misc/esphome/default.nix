@@ -15,14 +15,14 @@ let
 in
 with python.pkgs; buildPythonApplication rec {
   pname = "esphome";
-  version = "2022.4.0";
+  version = "2022.11.3";
   format = "setuptools";
 
   src = fetchFromGitHub {
     owner = pname;
     repo = pname;
-    rev = version;
-    sha256 = "sha256-/IMiUMtWFouAjOlyq+BXvqQ1IddBXvua7y0i4J1cktM=";
+    rev = "refs/tags/${version}";
+    hash = "sha256-Qu8QjItfFzB5uCdvmyYrsq9FRmI0S7/xH2LX1dKM28c=";
   };
 
   postPatch = ''
@@ -55,6 +55,7 @@ with python.pkgs; buildPythonApplication rec {
     protobuf
     pyserial
     pyyaml
+    requests
     tornado
     tzdata
     tzlocal
@@ -91,6 +92,7 @@ with python.pkgs; buildPythonApplication rec {
 
   passthru = {
     dashboard = esphome-dashboard;
+    updateScript = callPackage ./update.nix {};
   };
 
   meta = with lib; {
@@ -100,6 +102,6 @@ with python.pkgs; buildPythonApplication rec {
       mit # The C++/runtime codebase of the ESPHome project (file extensions .c, .cpp, .h, .hpp, .tcc, .ino)
       gpl3Only # The python codebase and all other parts of this codebase
     ];
-    maintainers = with maintainers; [ globin elseym hexa ];
+    maintainers = with maintainers; [ globin hexa ];
   };
 }
