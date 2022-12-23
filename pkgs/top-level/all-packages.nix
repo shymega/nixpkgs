@@ -39671,4 +39671,6 @@ with pkgs;
   duden = callPackage ../applications/misc/duden { };
 
   zf = callPackage ../tools/misc/zf { };
+
+  input-leap = callPackage ../applications/misc/input-leap { };
 }
