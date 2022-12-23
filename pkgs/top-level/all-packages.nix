@@ -30184,7 +30184,7 @@ with pkgs;
 
   crun = callPackage ../applications/virtualization/crun { };
 
-  crossover = callPackage ../applications/misc/crossover {};
+  crossover = callPackage ../applications/emulators/crossover {};
 
   csdp = callPackage ../applications/science/math/csdp { };
 
