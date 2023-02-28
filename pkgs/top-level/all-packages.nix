@@ -39672,5 +39672,5 @@ with pkgs;
 
   zf = callPackage ../tools/misc/zf { };
 
-  input-leap = callPackage ../applications/misc/input-leap { };
+  input-leap = libsForQt5.callPackage ../applications/misc/input-leap { };
 }

@@ -1,46 +1,57 @@
-{ lib, fetchFromGitHub, cmake, curl, xorg, avahi, qt5, openssl, stdenv
+{ lib
+, fetchFromGitHub
+, cmake
+, pkg-config
+, curl
+, xorg
+, avahi
+, qtbase
+, qttools
+, wrapQtAppsHook
+, openssl
+, stdenv
 , wrapGAppsHook
 , avahiWithLibdnssdCompat ? avahi.override { withLibdnssdCompat = true; }
-, fetchpatch }:
+, fetchpatch
+}:
 
 stdenv.mkDerivation rec {
   pname = "input-leap";
-  version = "2.4.0";
+  version = "unstable-2023-03-07";
 
   src = fetchFromGitHub {
     owner = "input-leap";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "sha256-2tHqLF3zS3C4UnOVIZfpcuzaemC9++nC7lXgFnFSfKU=";
+    repo = "input-leap";
+    rev = "09eebd619c5858d61e956fdb87f7cfabf7823b86";
+    sha256 = "sha256-9ssD+6ipJnAWwgI32n/9rU4uG/mCqibfjktI0lt7gg8==";
     fetchSubmodules = true;
   };
-
-  patches = [
-    # This patch can be removed when a new version of inputleap (greater than 2.4.0)
-    # is released, which will contain this commit.
-    (fetchpatch {
-      name = "add-missing-cstddef-header.patch";
-      url =
-        "https://github.com/input-leap/inputleap/commit/4b12265ae5d324b942698a3177e1d8b1749414d7.patch";
-      sha256 = "sha256-ajMxP7szBFi4h8cMT3qswfa3k/QiJ1FGI3q9fkCFQQk=";
-    })
-  ];
 
   buildInputs = [
     curl
     xorg.libX11
     xorg.libXext
+    xorg.libXrandr
+    xorg.libXinerama
     xorg.libXtst
+    xorg.libXi
+    xorg.libICE
+    xorg.libSM
     avahiWithLibdnssdCompat
-    qt5.qtbase
+    qtbase
+    qttools
   ];
-  nativeBuildInputs = [ cmake wrapGAppsHook qt5.wrapQtAppsHook ];
+  nativeBuildInputs = [ cmake pkg-config wrapGAppsHook wrapQtAppsHook ];
 
-  postFixup = ''
-    substituteInPlace "$out/share/applications/inputleap.desktop" --replace "Exec=inputleap" "Exec=$out/bin/inputleap"
+  dontWrapGApps = true;
+
+  # Arguments to be passed to `makeWrapper`, only used by qt5’s mkDerivation
+  preFixup = ''
+    qtWrapperArgs+=(
+      "''${gappsWrapperArgs[@]}"
+        --prefix PATH : "${lib.makeBinPath [ openssl ]}"
+    )
   '';
-
-  qtWrapperArgs = [ "--prefix PATH : ${lib.makeBinPath [ openssl ]}" ];
 
   meta = {
     description = "Open-source KVM software";
