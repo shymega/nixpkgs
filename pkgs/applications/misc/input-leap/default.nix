@@ -27,6 +27,8 @@ stdenv.mkDerivation rec {
     fetchSubmodules = true;
   };
 
+  cmakeFlags = [ "-DINPUTLEAP_REVISION=${builtins.substring 0 8 src.rev}" ];
+
   buildInputs = [
     curl
     xorg.libX11
