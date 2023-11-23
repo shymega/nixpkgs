@@ -41064,4 +41064,6 @@ with pkgs;
   dillo = callPackage ../by-name/di/dillo/package.nix {
     fltk = fltk13;
   };
+
+  moneydance = callPackage ../applications/office/moneydance { };
 }
