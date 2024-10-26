@@ -18689,4 +18689,6 @@ with pkgs;
   wings = callPackage ../by-name/wi/wings/package.nix {
     erlang = erlang_25;
   };
+
+  xrlinuxdriver = callPackage ../by-name/xr/xrlinuxdriver { };
 }
