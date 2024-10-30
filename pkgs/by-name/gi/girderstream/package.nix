@@ -1,13 +1,15 @@
 {
-  rustPlatform,
-  fetchFromGitLab,
-  lzip,
-  patch,
   bubblewrap,
+  buildbox,
+  fetchFromGitLab,
   fuse3,
   lib,
+  lzip,
+  patch,
   pdm,
-  buildbox,
+  pkg-config,
+  protobuf,
+  rustPlatform,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "girderstream";
@@ -25,23 +27,21 @@ rustPlatform.buildRustPackage rec {
     allowBuiltinFetchGit = true;
   };
 
-  propagatedBuildInputs =
-    [
-      buildbox
-      fuse3
-      lzip
-      patch
-    ];
-
-  nativeBuildInputs = [
+  propagatedBuildInputs = [
     bubblewrap
+    buildbox
+    fuse3
+    lzip
+    patch
   ];
+
+  nativeBuildInputs = [pkg-config protobuf];
 
   doCheck = false;
 
   meta = {
     platforms = lib.platforms.linux;
     mainProgram = "girderstream";
-    maintainers = with lib.maintainers; [ shymega ];
+    maintainers = with lib.maintainers; [shymega];
   };
-  }
+}
