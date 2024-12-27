@@ -18,8 +18,8 @@ rustPlatform.buildRustPackage rec {
   src = fetchFromGitLab {
     owner = pname;
     repo = pname;
-    tag = version;
-    hash = "sha256-9XPNGmQfzniwzOb1oiHiUEMHF0UX73or4c4/g8wFKvA=";
+    rev = "willsalmon/stop_build";
+    hash = "sha256-Uca1Ek+rmouJ0M/T/ni1c6n9kOBjTQfCTf2kyLaPoRQ=";
   };
 
   cargoLock = {
