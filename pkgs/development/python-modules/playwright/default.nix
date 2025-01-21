@@ -51,12 +51,8 @@ buildPythonPackage rec {
     git config --global user.name "nixpkgs"
     git commit -m "workaround setuptools-scm"
 
-    substituteInPlace setup.py \
-      --replace "setuptools-scm==8.1.0" "setuptools-scm" \
-      --replace-fail "wheel==0.42.0" "wheel"
-
     substituteInPlace pyproject.toml \
-      --replace 'requires = ["setuptools==68.2.2", "setuptools-scm==8.1.0", "wheel==0.42.0", "auditwheel==5.4.0"]' \
+      --replace 'requires = ["setuptools==75.5.0", "setuptools-scm==8.1.0", "wheel==0.45.0", "auditwheel==6.1.0"]' \
                 'requires = ["setuptools", "setuptools-scm", "wheel"]'
 
     # Skip trying to download and extract the driver.
