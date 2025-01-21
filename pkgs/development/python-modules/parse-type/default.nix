@@ -2,6 +2,8 @@
   lib,
   buildPythonPackage,
   fetchFromGitHub,
+  setuptools,
+  setuptools-scm,
   parse,
   pytestCheckHook,
   six,
@@ -10,7 +12,7 @@
 buildPythonPackage rec {
   pname = "parse-type";
   version = "0.6.4";
-  format = "setuptools";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "jenisys";
@@ -19,7 +21,12 @@ buildPythonPackage rec {
     hash = "sha256-R0HMrZaKjv0KITfHnQBjuXhs3RUgSJzkDXiehRICUUM=";
   };
 
-  propagatedBuildInputs = [
+  build-system = [
+    setuptools
+    setuptools-scm
+  ];
+
+  dependencies = [
     parse
     six
   ];
