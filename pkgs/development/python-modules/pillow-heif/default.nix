@@ -74,6 +74,12 @@ buildPythonPackage rec {
     pytestCheckHook
   ];
 
+  preCheck = ''
+    # https://github.com/bigcat88/pillow_heif/issues/325
+    rm tests/images/heif_other/L_xmp_latin1.heic
+    rm tests/images/heif/L_xmp.heif
+  '';
+
   disabledTests =
     [
       # Time based
