@@ -4,6 +4,7 @@
   pythonOlder,
   fetchFromGitHub,
   poetry-core,
+  pydantic,
   pytestCheckHook,
   pytest-mock,
   typing-extensions,
@@ -23,11 +24,12 @@ buildPythonPackage rec {
     hash = "sha256-n9TgXcmUEIQdqtrY+9T+EtPys+7OzXCemRwNPj1xPDw=";
   };
 
-  nativeBuildInputs = [ poetry-core ];
+  build-system = [ poetry-core ];
 
-  propagatedBuildInputs = lib.optionals (pythonOlder "3.10") [ typing-extensions ];
+  dependencies = lib.optionals (pythonOlder "3.10") [ typing-extensions ];
 
   nativeCheckInputs = [
+    pydantic
     pytestCheckHook
     pytest-mock
   ];
