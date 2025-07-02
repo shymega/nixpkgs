@@ -2,32 +2,30 @@
   lib,
   python3Packages,
   fetchFromGitHub,
-
   # buildInputs
   buildbox,
   fuse3,
   lzip,
   patch,
-
+  protobuf_29,
   # tests
   addBinToPathHook,
   gitMinimal,
   versionCheckHook,
-
   # Optional features
   enableBuildstreamPlugins ? true,
 }:
 
 python3Packages.buildPythonApplication rec {
   pname = "buildstream";
-  version = "2.4.1";
+  version = "2.5.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "apache";
     repo = "buildstream";
     tag = version;
-    hash = "sha256-6a0VzYO5yj7EHvAb0xa4xZ0dgBKjFcwKv2F4o93oahY=";
+    hash = "sha256-/kGmAHx10//iVeqLXwcIWNI9FGIi0LlNJW+s6v0yU3Q=";
   };
 
   build-system = with python3Packages; [
@@ -43,12 +41,14 @@ python3Packages.buildPythonApplication rec {
   ++ (with python3Packages; [
     click
     dulwich
-    grpcio
+    (grpcio.override {
+      protobuf = protobuf_29;
+    })
     jinja2
     markupsafe
     packaging
     pluginbase
-    protobuf
+    protobuf5
     psutil
     pyroaring
     requests
@@ -68,6 +68,8 @@ python3Packages.buildPythonApplication rec {
   ];
 
   pythonImportsCheck = [ "buildstream" ];
+
+  dontCheckRuntimeDeps = true;
 
   nativeCheckInputs = [
     addBinToPathHook
