@@ -485,9 +485,12 @@ in
     };
   };
 
-  meta.maintainers = with maintainers; [
-    jackr
-    sigmasquadron
-    therealgramdalf
-  ];
+  meta = {
+    maintainers = with maintainers; [
+      jackr
+      sigmasquadron
+      therealgramdalf
+    ];
+    doc = ./traefik.md;
+  };
 }
