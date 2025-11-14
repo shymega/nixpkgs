@@ -153,7 +153,7 @@ let
              }"
 
           substituteInPlace ./config/zfs-build.m4 \
-            --replace-fail "bashcompletiondir=/etc/bash_completion.d" \
+            --replace-fail "bashcompletiondir=/usr/share/bash-completion/completions" \
               "bashcompletiondir=$out/share/bash-completion/completions"
 
           substituteInPlace ./cmd/arc_summary --replace-fail "/sbin/modinfo" "modinfo"
