@@ -45,7 +45,7 @@ jobs:
             desc: shell, docs
           - runner: macos-14
             name: darwin
-            systems: aarch64-darwin x86_64-darwin
+            systems: aarch64-darwin
             builds: [shell]
             desc: shell
     name: '${{ matrix.name }}: ${{ matrix.desc }}'
