@@ -431,6 +431,23 @@ let
         Please read https://www.visualstudio.com/license-terms/mt644918/ and enable this config if you accept.
       '';
     };
+
+    allowDeprecatedx86_64Darwin = mkOption {
+      # `force` does nothing; it’s reserved for forward compatibility
+      # with 26.11. We hide it from the documentation to avoid a
+      # footgun, as it will make the error in 26.11 less useful.
+      type = types.either types.bool (types.enum [ "force" ]) // {
+        inherit (types.bool) description descriptionClass;
+      };
+      default = false;
+      description = ''
+        Silence the warning for the upcoming deprecation of the
+        `x86_64-darwin` platform in Nixpkgs 26.11.
+
+        See the [release notes](#x86_64-darwin-26.05) for more
+        information.
+      '';
+    };
   };
 
 in
