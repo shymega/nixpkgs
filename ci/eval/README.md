@@ -10,7 +10,7 @@ nix-build ci -A eval.baseline
 
 The two most important arguments are:
 - `--arg evalSystems`: The set of systems for which `nixpkgs` should be evaluated.
-  Defaults to the four official platforms (`x86_64-linux`, `aarch64-linux`, `x86_64-darwin` and `aarch64-darwin`).
+  Defaults to the three official platforms (`x86_64-linux`, `aarch64-linux`, and `aarch64-darwin`).
   Example: `--arg evalSystems '["x86_64-linux" "aarch64-darwin"]'`
 - `--arg quickTest`: Enables testing a single chunk of the current system only for quick iteration.
   Example: `--arg quickTest true`
