@@ -18,7 +18,7 @@
   libuuid,
   tomlplusplus,
   fuse3,
-  nix-update-script,
+  gitUpdater,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "buildbox";
@@ -57,7 +57,7 @@ stdenv.mkDerivation (finalAttrs: {
     wrapProgram $out/bin/buildbox-run --prefix PATH : ${lib.makeBinPath [ bubblewrap ]}
   '';
 
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = gitUpdater { };
 
   meta = {
     description = "Set of tools for remote worker build execution";
