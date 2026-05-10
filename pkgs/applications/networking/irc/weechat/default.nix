@@ -1,6 +1,6 @@
 {
   stdenv,
-  fetchurl,
+  fetchFromGitHub,
   lib,
   ncurses,
   openssl,
@@ -105,11 +105,13 @@ assert lib.all (p: p.enabled -> !(builtins.elem null p.buildInputs)) plugins;
 
 stdenv.mkDerivation rec {
   pname = "weechat";
-  version = "4.10.0";
+  version = "4.10.0-dev";
 
-  src = fetchurl {
-    url = "https://weechat.org/files/src/weechat-${version}.tar.xz";
-    hash = "sha256-w6fnxqVAHd6aRtAmT6RKowMsqYqoZBDEVNPeXGlQXFQ=";
+  src = fetchFromGitHub {
+    owner = "shymega";
+    repo = "weechat";
+    rev = "cdcdfd7522d0aa723d05447068cbd36a49f6d064";
+    hash = "sha256-XNTuyQRH01NDW/lAQsf3gIrGDMhTP9NLL0r5gIO93Qw=";
   };
 
   # Why is this needed? https://github.com/weechat/weechat/issues/2031
