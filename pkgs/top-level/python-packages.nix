@@ -22407,6 +22407,8 @@ self: super: with self; {
     }
   );
 
+  vtracer = callPackage ../development/python-modules/vtracer { };
+
   vttlib = callPackage ../development/python-modules/vttlib { };
 
   vulkan = callPackage ../development/python-modules/vulkan { };
