@@ -7,7 +7,6 @@
   cython,
   nixosTests,
 }:
-
 buildPythonPackage (finalAttrs: {
   pname = "buildstream-plugins";
   version = "2.8.0";
