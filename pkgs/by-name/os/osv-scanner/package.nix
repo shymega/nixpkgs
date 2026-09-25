@@ -1,12 +1,12 @@
 {
   lib,
-  buildGoModule,
+  buildGo127Module,
   fetchFromGitHub,
   nix-update-script,
   testers,
   osv-scanner,
 }:
-buildGoModule (finalAttrs: {
+buildGo127Module (finalAttrs: {
   pname = "osv-scanner";
   version = "2.5.1";
 
