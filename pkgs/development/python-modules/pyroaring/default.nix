@@ -7,6 +7,7 @@
   croaring,
   hypothesis,
   pytestCheckHook,
+  nix-update-script,
 }:
 buildPythonPackage rec {
   pname = "pyroaring";
@@ -38,6 +39,8 @@ buildPythonPackage rec {
   buildInputs = [ croaring ];
 
   pythonImportsCheck = [ "pyroaring" ];
+
+  passthru.updateScript = nix-update-script { };
 
   nativeCheckInputs = [
     hypothesis
