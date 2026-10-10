@@ -646,7 +646,7 @@ in
     ];
   });
 
-  luadbi-sqlite3 = prev.luadbi-sqlite3.overrideAttrs {
+  luadbi-sqlite3 = (prev.luadbi-sqlite3.overrideAttrs allowLua55).overrideAttrs {
     externalDeps = [
       {
         name = "SQLITE";
